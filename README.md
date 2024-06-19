@@ -13,3 +13,5 @@
 
 [Data Streams with Server-Sent Events](https://bytewax.io/blog/data-stream-server-sent-events)
 
+[How to use server-sent events (SSE) with FastAPI?](https://devdojo.com/bobbyiliev/how-to-use-server-sent-events-sse-with-fastapi)
+
