@@ -523,7 +523,7 @@ export class CdkStreamSseStack extends cdk.Stack {
     tavilyApiSecret.grantRead(roleLambdaSSE) 
 
     // lambda-chat using SSE    
-    const lambdaChatSSE = new lambda.DockerImageFunction(this, `lambda-chat-sse-for-${projectName}`, {
+  /*  const lambdaChatSSE = new lambda.DockerImageFunction(this, `lambda-chat-sse-for-${projectName}`, {
       description: 'lambda for chat using SSE',
       functionName: `lambda-chat-sse-for-${projectName}`,
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-chat-sse')),
@@ -667,7 +667,7 @@ export class CdkStreamSseStack extends cdk.Stack {
         { prefix: s3_prefix+'/' },
       ]
     });
-    lambdaS3eventManager.addEventSource(s3PutEventSource); 
+    lambdaS3eventManager.addEventSource(s3PutEventSource); */
 
 
 
