@@ -527,8 +527,8 @@ export class CdkStreamSseStack extends cdk.Stack {
     s3Bucket.grantReadWrite(lambdaChatSSE); // permission for s3
     callLogDataTable.grantReadWriteData(lambdaChatSSE); // permission for dynamo 
 
-    // POST method - chat
-    const chat_sse = api.root.addResource("chat");
+    // POST method - chat    
+    const chat_sse = api.root.addResource("chat-sse");
     chat_sse.addMethod('POST', new apiGateway.LambdaIntegration(lambdaChatSSE, {
       passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
       credentialsRole: role,
