@@ -27,6 +27,10 @@
 - [What are SSE (Server-Sent Events) and how do they work?](https://bunny.net/academy/http/what-is-sse-server-sent-events-and-how-do-they-work/)
 - [Redis Pub/Sub 기반 SSE(Server-Sent Events) 실시간 알림 적용기](https://velog.io/@wwlee94/Redis-PubSub-Base-Server-Sent-Event)
 
+## 결론
+- SSE로 구현시 단순하지만 Scale 고려시 pubsub을 위한 Redis cluster를 구성하여야 함
+- WebSocket도 세션관리에 대한 부담등의 이슈가 있고, WebSocket용 API Gateway를 써야하는 문제가 있으나 구조적으로 단순하고 비용도 저렴합니다. (Redis 불필요)
+
 ## Reference 
 
 [Data Streams with Server-Sent Events](https://bytewax.io/blog/data-stream-server-sent-events)
