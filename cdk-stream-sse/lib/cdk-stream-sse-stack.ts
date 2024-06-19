@@ -445,36 +445,6 @@ export class CdkStreamSseStack extends cdk.Stack {
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     });
 
-    // stream api gateway
-    // API Gateway
-    const SSEapi = new apigatewayv2.CfnApi(this, `ws-api-for-${projectName}`, {
-      description: 'API Gateway for chatbot using SSE',
-      apiKeySelectionExpression: "$request.header.x-api-key",
-      name: 'api-'+projectName,
-      protocolType: "SSE", // SSE or HTTP
-      routeSelectionExpression: "$request.body.action",     
-    });  
-    SSEapi.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY); // DESTROY, RETAIN
-
-    const wss_url = `wss://${SSEapi.attrApiId}.execute-api.${region}.amazonaws.com/${stage}`;
-    new cdk.CfnOutput(this, 'web-socket-url', {
-      value: wss_url,      
-      description: 'The URL of Web Socket',
-    });
-
-    const connection_url = `https://${SSEapi.attrApiId}.execute-api.${region}.amazonaws.com/${stage}`;
-    if(debug) {
-      new cdk.CfnOutput(this, 'api-identifier', {
-        value: SSEapi.attrApiId,
-        description: 'The API identifier.',
-      });
-
-      new cdk.CfnOutput(this, 'connection-url', {
-        value: connection_url,        
-        description: 'The URL of connection',
-      });
-    }
-
     const googleApiSecret = new secretsmanager.Secret(this, `google-api-secret-for-${projectName}`, {
       description: 'secret for google api key',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -523,7 +493,7 @@ export class CdkStreamSseStack extends cdk.Stack {
     tavilyApiSecret.grantRead(roleLambdaSSE) 
 
     // lambda-chat using SSE    
-  /*  const lambdaChatSSE = new lambda.DockerImageFunction(this, `lambda-chat-sse-for-${projectName}`, {
+    const lambdaChatSSE = new lambda.DockerImageFunction(this, `lambda-chat-sse-for-${projectName}`, {
       description: 'lambda for chat using SSE',
       functionName: `lambda-chat-sse-for-${projectName}`,
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-chat-sse')),
@@ -534,7 +504,6 @@ export class CdkStreamSseStack extends cdk.Stack {
         s3_bucket: s3Bucket.bucketName,
         s3_prefix: s3_prefix,
         callLogTableName: callLogTableName,
-        connection_url: connection_url,
         enableReference: enableReference,
         opensearch_account: opensearch_account,
         opensearch_passwd: opensearch_passwd,
@@ -667,7 +636,7 @@ export class CdkStreamSseStack extends cdk.Stack {
         { prefix: s3_prefix+'/' },
       ]
     });
-    lambdaS3eventManager.addEventSource(s3PutEventSource); */
+    lambdaS3eventManager.addEventSource(s3PutEventSource); 
 
 
 
