@@ -277,7 +277,7 @@ export class CdkStreamSseStack extends cdk.Stack {
     });        
 
     // Lambda - Upload
-    const lambdaUpload = new lambda.Function(this, `lambda-upload-for-${projectName}`, {
+ /*   const lambdaUpload = new lambda.Function(this, `lambda-upload-for-${projectName}`, {
       runtime: lambda.Runtime.NODEJS_16_X, 
       functionName: `lambda-upload-for-${projectName}`,
       code: lambda.Code.fromAsset("../lambda-upload"), 
@@ -667,7 +667,7 @@ export class CdkStreamSseStack extends cdk.Stack {
         { prefix: s3_prefix+'/' },
       ]
     });
-    lambdaS3eventManager.addEventSource(s3PutEventSource); 
+    lambdaS3eventManager.addEventSource(s3PutEventSource); */
 
 
 
