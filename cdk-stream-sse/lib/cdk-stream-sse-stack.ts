@@ -22,7 +22,7 @@ const accountId = process.env.CDK_DEFAULT_ACCOUNT
 const debug = false;
 const stage = 'dev';
 const s3_prefix = 'docs';
-const projectName = `llm-multimodal-workshop`; 
+const projectName = `stream-sse`; 
 const bucketName = `storage-for-${projectName}-${accountId}-${region}`; 
 
 const opensearch_account = "admin";
