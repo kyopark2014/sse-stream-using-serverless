@@ -277,7 +277,7 @@ export class CdkStreamSseStack extends cdk.Stack {
     });        
 
     // Lambda - Upload
- /*   const lambdaUpload = new lambda.Function(this, `lambda-upload-for-${projectName}`, {
+    const lambdaUpload = new lambda.Function(this, `lambda-upload-for-${projectName}`, {
       runtime: lambda.Runtime.NODEJS_16_X, 
       functionName: `lambda-upload-for-${projectName}`,
       code: lambda.Code.fromAsset("../lambda-upload"), 
@@ -318,7 +318,7 @@ export class CdkStreamSseStack extends cdk.Stack {
     }
 
     // cloudfront setting  
-    distribution.addBehavior("/upload", new origins.RestApiOrigin(api), {
+  /*  distribution.addBehavior("/upload", new origins.RestApiOrigin(api), {
       cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
       allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
