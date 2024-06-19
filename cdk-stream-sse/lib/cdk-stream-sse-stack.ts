@@ -548,13 +548,13 @@ export class CdkStreamSseStack extends cdk.Stack {
     }); 
 
     // cloudfront setting for api gateway    
-    distribution.addBehavior("/chat", new origins.RestApiOrigin(api), {
+  /*  distribution.addBehavior("/chat", new origins.RestApiOrigin(api), {
       cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
       allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     });
     
-  /*  if(debug) {
+    if(debug) {
       new cdk.CfnOutput(this, 'function-chat-sse-arn', {
         value: lambdaChatSSE.functionArn,
         description: 'The arn of lambda webchat.',
