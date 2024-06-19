@@ -529,7 +529,7 @@ export class CdkStreamSseStack extends cdk.Stack {
 
     // POST method - chat    
     const chast_sse = api.root.addResource("chat");
-    chast_sse.addMethod('POST', new apiGateway.LambdaIntegration(lambdaGetHistory, {
+    chast_sse.addMethod('POST', new apiGateway.LambdaIntegration(lambdaChatSSE, {
       passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
       credentialsRole: role,
       integrationResponses: [{
