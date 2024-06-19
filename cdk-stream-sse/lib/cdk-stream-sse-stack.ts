@@ -528,7 +528,7 @@ export class CdkStreamSseStack extends cdk.Stack {
     callLogDataTable.grantReadWriteData(lambdaChatSSE); // permission for dynamo 
 
     // POST method - chat
- /*   const chat_sse = api.root.addResource("chat");
+    const chat_sse = api.root.addResource("chat");
     chat_sse.addMethod('POST', new apiGateway.LambdaIntegration(lambdaChatSSE, {
       passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
       credentialsRole: role,
@@ -546,7 +546,7 @@ export class CdkStreamSseStack extends cdk.Stack {
         }
       ]
     }); 
-
+/*
     // cloudfront setting for api gateway    
     distribution.addBehavior("/chat", new origins.RestApiOrigin(api), {
       cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
