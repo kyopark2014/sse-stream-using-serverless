@@ -502,7 +502,7 @@ export class CdkStreamSseStack extends cdk.Stack {
       role: roleLambdaSSE,
       environment: {
         s3_bucket: s3Bucket.bucketName,
-        s3_prefix: s3_prefix,
+      /*  s3_prefix: s3_prefix,
         callLogTableName: callLogTableName,
         enableReference: enableReference,
         opensearch_account: opensearch_account,
@@ -520,7 +520,7 @@ export class CdkStreamSseStack extends cdk.Stack {
         googleApiSecret: googleApiSecret.secretName,
         projectName: projectName,
         separated_chat_history: separated_chat_history,
-        enalbeParentDocumentRetrival: enalbeParentDocumentRetrival    
+        enalbeParentDocumentRetrival: enalbeParentDocumentRetrival    */
       }
     });     
     // lambdaChatSSE.grantInvoke(new iam.ServicePrincipal('apigateway.amazonaws.com'));  
