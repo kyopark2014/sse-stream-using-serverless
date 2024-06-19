@@ -523,7 +523,7 @@ export class CdkStreamSseStack extends cdk.Stack {
         enalbeParentDocumentRetrival: enalbeParentDocumentRetrival    
       }
     });     
-    lambdaChatSSE.grantInvoke(new iam.ServicePrincipal('apigateway.amazonaws.com'));  
+    // lambdaChatSSE.grantInvoke(new iam.ServicePrincipal('apigateway.amazonaws.com'));  
     s3Bucket.grantReadWrite(lambdaChatSSE); // permission for s3
     callLogDataTable.grantReadWriteData(lambdaChatSSE); // permission for dynamo 
 
