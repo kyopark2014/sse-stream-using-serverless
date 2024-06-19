@@ -318,7 +318,7 @@ export class CdkStreamSseStack extends cdk.Stack {
     }
 
     // cloudfront setting  
-  /*  distribution.addBehavior("/upload", new origins.RestApiOrigin(api), {
+    distribution.addBehavior("/upload", new origins.RestApiOrigin(api), {
       cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
       allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
       viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -667,7 +667,7 @@ export class CdkStreamSseStack extends cdk.Stack {
         { prefix: s3_prefix+'/' },
       ]
     });
-    lambdaS3eventManager.addEventSource(s3PutEventSource); */
+    lambdaS3eventManager.addEventSource(s3PutEventSource); 
 
 
 
