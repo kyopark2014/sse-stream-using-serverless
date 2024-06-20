@@ -15,12 +15,17 @@
 
 ## Load balancing
 
-- SSE의 경우에 HTTP GET을 사용하므로 N개의 서버가 Load balancer를 통해 연결되어 있다면, 매번 Client의 요청은 N개의 서버중에 하나에 전달되게 됩니다. 
-- 서버는 user의 요청이 올때, history를 가지고 있지 않다면, DynamoDB와 같은 데이터베이스에서 관련 history를 가져와서 chat에서 활용해야 합니다. 따라서 매번 다른 서버로 전달되면 chat history를 관리할 수 없습니다. (WebSocket도 첫 Request는 N개의 서버중 하나에 요청이 전달되지만, dedicated session 이용하므로 같은 문제가 발생하지 않음)
-- 이를 위해 2가지 방법이 알려져 있는것으로 보엽니다. 1) pubsub 서버를 두어서 HTTP GET 요청을 subscribe 하고 있는 서버들에게 전달하면, 현재 open된 연결을 가진 서버에서 응답하는 방식 2) ALB의 sticky session을 이용해 항상 같은 서버로 연결하는 방식이 있습니다. [Server-Sent events in scalable backend](https://stackoverflow.com/questions/30458969/server-sent-events-in-scalable-backend)
+- SSE의 경우에 HTTP GET을 사용하므로 N개의 Server가 Load balancer를 이용해 서비스 된다면, Client의 요청은 N개의 서버중에 하나에 전달되게 됩니다.
+- SSE의 경우에 HTTP 세션이 유지하고 재사용하므로, client와 server는 항상 매칭되어야 합니다. 또한, server는 chat history를 가지고 있으므로, 매번 다른 server로 request가 전달된다면, 일관된 history를 유지할 수 없습니다. (WebSocket API Gateway는 세션이 유지되는 동안에 항상 같은 server로 client의 요청을 전달됩니다.)
+- SSE에서는 HTTP 세션을 유지하기 위하여 아래 방법을 이용할 수 있습니다.
 
+1) pubsub 서버를 이용하여 HTTP GET 요청을 subscribe 하고 있는 서버들에게 요청을 전달하고, 현재 open된 연결을 가진 서버에서 응답하도록 합니다.
+   
+2) ALB의 sticky session을 이용해 항상 같은 서버로 연결할 수 있습니다. [Server-Sent events in scalable backend](https://stackoverflow.com/questions/30458969/server-sent-events-in-scalable-backend)
 
-## 구현
+여기서는 pubsub을 이용하여 구현하는 방법을 활용하고자 합니다. 
+
+## 구현 방안
 
 user-id를 key로하는 pubsub을 통해 SSE 세션을 가지고 있는 lambda(chat)에 질문을 전달합니다. 상세한 call flow는 아래를 참조합니다.
 
