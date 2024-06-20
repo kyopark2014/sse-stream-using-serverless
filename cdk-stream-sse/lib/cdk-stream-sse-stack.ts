@@ -627,7 +627,6 @@ export class componentDeployment extends cdk.Stack {
           opensearch_account: opensearch_account,
           opensearch_passwd: opensearch_passwd,
           opensearch_url: opensearch_url,
-          roleArn: roleLambdaSSE.roleArn,
           path: 'https://'+distributionName+'/', 
           sqsUrl: queueUrl[i],
           max_object_size: String(max_object_size),

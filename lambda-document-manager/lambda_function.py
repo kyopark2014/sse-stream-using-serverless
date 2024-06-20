@@ -43,7 +43,6 @@ selected_chat = 0
 selected_multimodal = 0
 selected_embedding = 0
 
-roleArn = os.environ.get('roleArn') 
 path = os.environ.get('path')
 max_object_size = int(os.environ.get('max_object_size'))
 
