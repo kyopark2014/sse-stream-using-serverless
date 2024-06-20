@@ -1979,8 +1979,8 @@ async def generator(req: Request):
                 
 @router.get("/chat")
 async def sendMessage(req: Request) -> EventSourceResponse:
+    await print('req:', req)
     #return {"message": "Hello World..."}
-    print('req: ', req)
     
     return EventSourceResponse(generator(req))
 
