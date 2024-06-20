@@ -90,37 +90,9 @@ function sendMessage(message) {
 function connect(endpoint, type) {
     const sse = new EventSource("/chat");
 
-    // connection event
-    sse.onopen = function () {
-        console.log('connected...');
-        isConnected = true;
-
-        if(undelivered.size() && retry_count>0) {
-            let keys = undelivered.getKeys();
-            console.log('retry undelived messags!');            
-            console.log('keys: ', keys);
-            console.log('retry_count: ', retry_count);
-
-            for(i in keys) {
-                let message = undelivered.get(keys[i])
-                console.log('message', message)
-                if(!sendMessage(message)) break;
-                else {
-                    undelivered.remove(message.request_id)
-                }
-            }
-            retry_count--;
-        }
-        else {
-            retry_count = 3
-        }
-
-        if(type == 'initial')
-            setInterval(ping, 40000);  // ping interval: 40 seconds
-    };
-
     // message 
     sse.onmessage = function (event) {        
+        console.log('event: ', event)
         response = JSON.parse(event.data)
 
         if(response.request_id) {
@@ -167,9 +139,36 @@ function connect(endpoint, type) {
         }        
     };
 
-console.log("trying to connect...")
-connect(endpoint, 'inition')    
 
+    // connection event
+    sse.onopen = function () {
+        console.log('connected...');
+        isConnected = true;
+
+        if(undelivered.size() && retry_count>0) {
+            let keys = undelivered.getKeys();
+            console.log('retry undelived messags!');            
+            console.log('keys: ', keys);
+            console.log('retry_count: ', retry_count);
+
+            for(i in keys) {
+                let message = undelivered.get(keys[i])
+                console.log('message', message)
+                if(!sendMessage(message)) break;
+                else {
+                    undelivered.remove(message.request_id)
+                }
+            }
+            retry_count--;
+        }
+        else {
+            retry_count = 3
+        }
+
+        if(type == 'initial')
+            setInterval(ping, 40000);  // ping interval: 40 seconds
+    };
+    
     // disconnect
     sse.onclose = function () {
         console.log('disconnected...!');
@@ -189,6 +188,11 @@ connect(endpoint, 'inition')
 
     return sse;
 }
+
+console.log("trying to connect...")
+connect(endpoint, 'inition')    
+
+
 
 let callee = "AWS";
 let index=0;
