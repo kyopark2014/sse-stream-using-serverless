@@ -1955,7 +1955,9 @@ router = APIRouter()
 
 @router.get("/chat")
 async def sendMessage():
-    return {"message": "Hello World..."}
+    # return {"message": "Hello World..."}
+    return EventSourceResponse({"message": "Hello World..."})
+
 
 #@app.get("/chat")
 
