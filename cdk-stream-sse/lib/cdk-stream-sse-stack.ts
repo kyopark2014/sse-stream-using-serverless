@@ -115,8 +115,23 @@ export class CdkStreamSseStack extends cdk.Stack {
       description: 'copy commend for web pages',
     });
 
+    // deploy cloudfront
+    const cfdeploy = new cfDeployment(scope, `cf-deployment-of-${projectName}`, s3Bucket)
+
+    // deploy others
+    const components = new componentDeployment(scope, `component-deployment-of-${projectName}`, s3Bucket, cfdeploy.distribution)
+    components.addDependency(cfdeploy)
+  }
+}
+
+export class cfDeployment extends cdk.Stack {
+  public distribution: cloudFront.Distribution;
+
+  constructor(scope: Construct, id: string, s3Bucket: any, props?: cdk.StackProps) {    
+    super(scope, id, props);
+    
     // cloudfront
-    const distribution = new cloudFront.Distribution(this, `cloudfront-for-${projectName}`, {
+    this.distribution = new cloudFront.Distribution(this, `cloudfront-for-${projectName}`, {
       defaultBehavior: {
         origin: new origins.S3Origin(s3Bucket),
         allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,
@@ -126,15 +141,11 @@ export class CdkStreamSseStack extends cdk.Stack {
       priceClass: cloudFront.PriceClass.PRICE_CLASS_200,  
     });
     new cdk.CfnOutput(this, `distributionDomainName-for-${projectName}`, {
-      value: distribution.domainName,
+      value: this.distribution.domainName,
       description: 'The domain name of the Distribution',
     });
-
-    // deploy components
-    new componentDeployment(scope, `component-deployment-of-${projectName}`, s3Bucket, distribution)         
   }
-}
-
+} 
 
 export class componentDeployment extends cdk.Stack {
   constructor(scope: Construct, id: string, s3Bucket: any, distribution: any, props?: cdk.StackProps) {    
