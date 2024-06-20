@@ -1956,12 +1956,19 @@ def getResponse(connectionId, jsonBody):
 from fastapi import FastAPI, APIRouter, Request
 from mangum import Mangum
 from sse_starlette.sse import EventSourceResponse
+app = FastAPI(root_path="/prod")
 
 app = FastAPI()
+#app = FastAPI(root_path="/prod")
+
 
 @app.get("/chat")
-async def root():
+async def root() -> dict:
   return {"message": "Hello World"}
+
+@app.get("/")
+async def root() -> dict:
+  return {"message": "Hello World2"}
 
 router = APIRouter()
 async def run(request: Request):
@@ -1977,14 +1984,18 @@ async def run(request: Request):
 #async def get_users():
 #    return {"message": "Users!"}
 
-handler = Mangum(app)
-
-
-
-
 
 def lambda_handler(event, context):
     print('event: ', event)
+    
+    asgi_handler = Mangum(app)
+    response = asgi_handler(
+        event, context
+    )  # Call the instance with the event arguments
+
+    print('response', response)
+    
+    return response
     
     """
     msg = ""
