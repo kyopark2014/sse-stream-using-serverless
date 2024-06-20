@@ -134,7 +134,6 @@ export class CdkStreamSseStack extends cdk.Stack {
 
     // deploy others
     const components = new componentDeployment(scope, `component-deployment-of-${projectName}`, s3Bucket, cf.distribution.domainName, api)
-    components.addDependency(cf)
   }
 }
 
