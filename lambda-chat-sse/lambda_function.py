@@ -1954,8 +1954,9 @@ def getResponse(connectionId, jsonBody):
     return msg, reference
 
 def lambda_handler(event, context):
-    # print('event: ', event)
+    print('event: ', event)
     
+    """
     msg = ""
     if event['requestContext']: 
         connectionId = event['requestContext']['connectionId']        
@@ -1990,6 +1991,7 @@ def lambda_handler(event, context):
 
                     sendErrorMessage(connectionId, requestId, err_msg)    
                     raise Exception ("Not able to send a message")
+    """
 
     return {
         'statusCode': 200

@@ -10,10 +10,6 @@ console.log('feedback...');
 const feedback = document.getElementById('feedback');
 feedback.style.display = 'none';    
 
-let webSocket
-let isConnected = false;
-webSocket = connect(endpoint, 'initial');
-
 // Documents
 const title = document.querySelector('#title');
 const sendBtn = document.querySelector('#sendBtn');
@@ -62,6 +58,10 @@ let sentTime = new HashMap();
 
 let undelivered = new HashMap();
 let retry_count = 0;
+
+
+
+
 function sendMessage(message) {
     if(!isConnected) {
         console.log('reconnect...'); 
@@ -87,25 +87,11 @@ function sendMessage(message) {
     }     
 }
 
-let tm;
-function ping() {
-    console.log('->ping');
-    webSocket.send('__ping__');
-    tm = setTimeout(function () {
-        console.log('reconnect...');    
-        
-        webSocket = connect(endpoint, 'reconnect');
-    }, 5000);
-}
-function pong() {
-    clearTimeout(tm);
-}
-
 function connect(endpoint, type) {
-    const ws = new WebSocket(endpoint);
+    const sse = new EventSource("/chat");
 
     // connection event
-    ws.onopen = function () {
+    sse.onopen = function () {
         console.log('connected...');
         isConnected = true;
 
@@ -134,78 +120,74 @@ function connect(endpoint, type) {
     };
 
     // message 
-    ws.onmessage = function (event) {        
-        if (event.data.substr(1,8) == "__pong__") {
-            console.log('<-pong');
-            pong();
-            return;
+    sse.onmessage = function (event) {        
+        response = JSON.parse(event.data)
+
+        if(response.request_id) {
+            if(!indexList.get(response.request_id+':receive')) { // the first received message
+                let current = new Date();
+                let elapsed = (current - sentTime.get(response.request_id))/1000;
+                // console.log('elapsed time: ', elapsed);
+            }
+            // console.log('response: ', response);
+
+            if(response.status == 'completed') {          
+                feedback.style.display = 'none';          
+                console.log('received message: ', response.msg);                 
+                addReceivedMessage(response.request_id, response.msg);  
+            }                
+            else if(response.status == 'istyping') {
+                feedback.style.display = 'inline';
+                // feedback.innerHTML = '<i>typing a message...</i>'; 
+            }
+            else if(response.status == 'proceeding') {
+                feedback.style.display = 'none';
+                addReceivedMessage(response.request_id, response.msg);  
+            }                
+            else if(response.status == 'debug') {
+                feedback.style.display = 'none';
+                console.log('debug: ', response.msg);
+                // addNotifyMessage(response.msg);
+                addReceivedMessage(response.request_id, response.msg);  
+            }          
+            else if(response.status == 'error') {
+                feedback.style.display = 'none';
+                console.log('error: ', response.msg);
+
+                if(response.msg.indexOf('throttlingException') || response.msg.indexOf('Too many requests') || response.msg.indexOf('too many requests')) {
+                    addNotifyMessage('허용된 요청수를 초과하였습니다. 추후 다시 재도시도 해주세요.');  
+                }
+                else {
+                    addNotifyMessage(response.msg);
+                }
+            }   
         }
         else {
-            response = JSON.parse(event.data)
-
-            if(response.request_id) {
-                if(!indexList.get(response.request_id+':receive')) { // the first received message
-                    let current = new Date();
-                    let elapsed = (current - sentTime.get(response.request_id))/1000;
-                    // console.log('elapsed time: ', elapsed);
-                }
-                // console.log('response: ', response);
-
-                if(response.status == 'completed') {          
-                    feedback.style.display = 'none';          
-                    console.log('received message: ', response.msg);                  
-                    addReceivedMessage(response.request_id, response.msg);  
-                }                
-                else if(response.status == 'istyping') {
-                    feedback.style.display = 'inline';
-                    // feedback.innerHTML = '<i>typing a message...</i>'; 
-                }
-                else if(response.status == 'proceeding') {
-                    feedback.style.display = 'none';
-                    addReceivedMessage(response.request_id, response.msg);  
-                }                
-                else if(response.status == 'debug') {
-                    feedback.style.display = 'none';
-                    console.log('debug: ', response.msg);
-                    // addNotifyMessage(response.msg);
-                    addReceivedMessage(response.request_id, response.msg);  
-                }          
-                else if(response.status == 'error') {
-                    feedback.style.display = 'none';
-                    console.log('error: ', response.msg);
-
-                    if(response.msg.indexOf('throttlingException') || response.msg.indexOf('Too many requests') || response.msg.indexOf('too many requests')) {
-                        addNotifyMessage('허용된 요청수를 초과하였습니다. 추후 다시 재도시도 해주세요.');  
-                    }
-                    else {
-                        addNotifyMessage(response.msg);
-                    }
-                }   
-            }
-            else {
-                console.log('system message: ', event.data);
-            }
+            console.log('system message: ', event.data);
         }        
     };
 
+console.log("trying to connect...")
+connect(endpoint, 'inition')    
+
     // disconnect
-    ws.onclose = function () {
+    sse.onclose = function () {
         console.log('disconnected...!');
         isConnected = false;
 
-        ws.close();
+        sse.close();
         console.log('the session will be closed');
     };
 
     // error
-    ws.onerror = function (error) {
+    sse.onerror = function (error) {
         console.log(error);
 
-        ws.close();
+        sse.close();
         console.log('the session will be closed');
     };
 
-    return ws;
+    return sse;
 }
 
 let callee = "AWS";

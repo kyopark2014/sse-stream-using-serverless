@@ -22,7 +22,7 @@ console.log(userInput.value);
 console.log(convtypeInput.value);
 
 // provisioning
-getProvisioningInfo(userId);
+// getProvisioningInfo(userId);
 
 function onSubmit(e) {
     e.preventDefault();
