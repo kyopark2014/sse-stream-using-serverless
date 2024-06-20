@@ -1956,24 +1956,29 @@ router = APIRouter()
 
 
 async def generator(req: Request):
-    print('generator')
     event_id = str(uuid4())
+    print('event_id: ', event_id)
     
-    while True:
-        is_disconnected = await req.is_disconnected()
-        if is_disconnected:
-            break
+    #while True:
+    #    is_disconnected = await req.is_disconnected()
+    #    if is_disconnected:
+    #        break
         
-        for i in range(3):
-            yield {
-                "event": "init",
-                "id": event_id,
-                "data": {"event-id": event_id, "msg": i}
-            }
-        await asyncio.sleep(1)
+        #for i in range(3):
+        #    yield {
+        #        "event": "init",
+        #        "id": event_id,
+        #        "data": {"event-id": event_id, "msg": i}
+        #    }
+        #await asyncio.sleep(1)
+    yield {
+        "event": "init",
+        "id": event_id,
+        "data": {"event-id": event_id, "msg": "nothing"}
+    }
                 
 @router.get("/chat")
-async def sendMessage(req: Request):
+async def sendMessage(req: Request) -> EventSourceResponse:
     #return {"message": "Hello World..."}
     print('req: ', req)
     
