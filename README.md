@@ -27,6 +27,14 @@
 - [What are SSE (Server-Sent Events) and how do they work?](https://bunny.net/academy/http/what-is-sse-server-sent-events-and-how-do-they-work/)
 - [Redis Pub/Sub 기반 SSE(Server-Sent Events) 실시간 알림 적용기](https://velog.io/@wwlee94/Redis-PubSub-Base-Server-Sent-Event)
 
+## 구현
+
+### 필요한 패키지
+
+mangum: Python ASGI app을 위한 어댑터. FastAPI와 함께 활용
+
+
+
 ## 결론
 - SSE로 구현시 단순하고 쉽게 구현가능하지만, Scale 고려시 pubsub을 위한 Redis cluster를 구성하여야 합니다.
 - WebSocket는 세션관리에 대한 부담등의 이슈가 있고, WebSocket용 API Gateway를 써야하지만 Redis가 불필요합니다.
