@@ -115,15 +115,30 @@ export class CdkStreamSseStack extends cdk.Stack {
       description: 'copy commend for web pages',
     });
 
-    let distribution: any;
-    const cf = new componentDeployment(scope, `component-deployment-of-${projectName}`, s3Bucket, distribution)     
-    if(debug) {
-      new cdk.CfnOutput(this, 'cf', {
-        value: distribution.domainName,
-        description: 'The domain name of cloudfront',
-      });
-    }
+    // cloudfront
+    const distribution = new cloudFront.Distribution(this, `cloudfront-for-${projectName}`, {
+      defaultBehavior: {
+        origin: new origins.S3Origin(s3Bucket),
+        allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,
+        cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+        viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      },
+      priceClass: cloudFront.PriceClass.PRICE_CLASS_200,  
+    });
+    new cdk.CfnOutput(this, `distributionDomainName-for-${projectName}`, {
+      value: distribution.domainName,
+      description: 'The domain name of the Distribution',
+    });
 
+    // deploy components
+    new componentDeployment(scope, `component-deployment-of-${projectName}`, s3Bucket, distribution)         
+  }
+}
+
+
+export class componentDeployment extends cdk.Stack {
+  constructor(scope: Construct, id: string, s3Bucket: any, distribution: any, props?: cdk.StackProps) {    
+    super(scope, id, props);
     // DynamoDB for call log
     const callLogTableName = `db-call-log-for-${projectName}`;
     const callLogDataTable = new dynamodb.Table(this, `db-call-log-for-${projectName}`, {
@@ -138,7 +153,7 @@ export class CdkStreamSseStack extends cdk.Stack {
       indexName: callLogIndexName,
       partitionKey: { name: 'request_id', type: dynamodb.AttributeType.STRING },
     });
-    
+
     // Lambda - chat (SSE)
     const roleLambdaSSE = new iam.Role(this, `role-lambda-chat-sse-for-${projectName}`, {
       roleName: `role-lambda-chat-sse-for-${projectName}-${region}`,
@@ -265,10 +280,10 @@ export class CdkStreamSseStack extends cdk.Stack {
       },
     });  
    
-    /*new cdk.CfnOutput(this, `WebUrl-for-${projectName}`, {
+    new cdk.CfnOutput(this, `WebUrl-for-${projectName}`, {
       value: 'https://'+distribution.domainName+'/index.html',      
       description: 'The web url of request for chat',
-    });        */
+    });        
 
     // Lambda - Upload
     const lambdaUpload = new lambda.Function(this, `lambda-upload-for-${projectName}`, {
@@ -630,26 +645,9 @@ export class CdkStreamSseStack extends cdk.Stack {
       ]
     });
     lambdaS3eventManager.addEventSource(s3PutEventSource); 
-  }
-}
 
-export class componentDeployment extends cdk.Stack {
-  constructor(scope: Construct, id: string, s3Bucket: any, distribution: any, props?: cdk.StackProps) {    
-    super(scope, id, props);
-    
-    // cloudfront
-    distribution = new cloudFront.Distribution(this, `cloudfront-for-${projectName}`, {
-      defaultBehavior: {
-        origin: new origins.S3Origin(s3Bucket),
-        allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,
-        cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
-        viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      },
-      priceClass: cloudFront.PriceClass.PRICE_CLASS_200,  
-    });
-    new cdk.CfnOutput(this, `distributionDomainName-for-${projectName}`, {
-      value: distribution.domainName,
-      description: 'The domain name of the Distribution',
-    });
+
+
+
   }
 } 
