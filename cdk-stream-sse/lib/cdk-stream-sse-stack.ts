@@ -115,20 +115,14 @@ export class CdkStreamSseStack extends cdk.Stack {
       description: 'copy commend for web pages',
     });
 
-    // cloudfront
-    const distribution = new cloudFront.Distribution(this, `cloudfront-for-${projectName}`, {
-      defaultBehavior: {
-        origin: new origins.S3Origin(s3Bucket),
-        allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,
-        cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
-        viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      },
-      priceClass: cloudFront.PriceClass.PRICE_CLASS_200,  
-    });
-    new cdk.CfnOutput(this, `distributionDomainName-for-${projectName}`, {
-      value: distribution.domainName,
-      description: 'The domain name of the Distribution',
-    });
+    let distribution: any;
+    const cf = new componentDeployment(scope, `component-deployment-of-${projectName}`, s3Bucket, distribution)     
+    if(debug) {
+      new cdk.CfnOutput(this, 'cf', {
+        value: distribution.domainName,
+        description: 'The domain name of cloudfront',
+      });
+    }
 
     // DynamoDB for call log
     const callLogTableName = `db-call-log-for-${projectName}`;
@@ -546,7 +540,6 @@ export class CdkStreamSseStack extends cdk.Stack {
       ]
     }); 
 
-/*
     // cloudfront setting for api gateway    
     distribution.addBehavior("/chat", new origins.RestApiOrigin(api), {
       cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
@@ -636,12 +629,27 @@ export class CdkStreamSseStack extends cdk.Stack {
         { prefix: s3_prefix+'/' },
       ]
     });
-    lambdaS3eventManager.addEventSource(s3PutEventSource); */
-
-
-
-
-    
+    lambdaS3eventManager.addEventSource(s3PutEventSource); 
   }
 }
 
+export class componentDeployment extends cdk.Stack {
+  constructor(scope: Construct, id: string, s3Bucket: any, distribution: any, props?: cdk.StackProps) {    
+    super(scope, id, props);
+    
+    // cloudfront
+    distribution = new cloudFront.Distribution(this, `cloudfront-for-${projectName}`, {
+      defaultBehavior: {
+        origin: new origins.S3Origin(s3Bucket),
+        allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,
+        cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+        viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      },
+      priceClass: cloudFront.PriceClass.PRICE_CLASS_200,  
+    });
+    new cdk.CfnOutput(this, `distributionDomainName-for-${projectName}`, {
+      value: distribution.domainName,
+      description: 'The domain name of the Distribution',
+    });
+  }
+} 
