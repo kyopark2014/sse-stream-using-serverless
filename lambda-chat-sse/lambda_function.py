@@ -1955,6 +1955,14 @@ router = APIRouter()
 # router = APIRouter(prefix="/sse")
 
 
+async def print_request(request):
+    print(f'request header       : {dict(request.headers.items())}' )
+    print(f'request query params : {dict(request.query_params.items())}')  
+    try : 
+        print(f'request json         : {await request.json()}')
+    except Exception as err:
+        print(f'request body         : {await request.body()}')
+        
 async def generator(req: Request):
     event_id = str(uuid4())
     print('event_id: ', event_id)
@@ -1979,7 +1987,7 @@ async def generator(req: Request):
                 
 @router.get("/chat")
 async def sendMessage(req: Request) -> EventSourceResponse:
-    await print('req:', req)
+    await print_request(req)
     #return {"message": "Hello World..."}
     
     return EventSourceResponse(generator(req))
