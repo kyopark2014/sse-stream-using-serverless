@@ -31,7 +31,10 @@
 
 ### 필요한 패키지
 
-mangum: Python ASGI app을 위한 어댑터. FastAPI와 함께 활용
+mangum: API를 핸들러로 래핑할 수 있게 해주며, 이를 AWS Lambda 함수로 패키징하고 배포할 수 있습니다. 
+
+AWS API Gateway를 사용하여 모든 수신 요청을 라우팅하여 Lambda를 호출하고 애플리케이션 내부에서 라우팅을 처리할 수 있습니다. 
+
 
 
 
