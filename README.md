@@ -13,7 +13,7 @@
 
 - media type: "text/event-stream"
 
-## Issue: Load balancing
+## Load balancing
 
 - SSE의 경우에 HTTP GET을 사용하므로 N개의 서버가 Load balancer를 통해 연결되어 있다면, 매번 Client의 요청은 N개의 서버중에 하나에 전달되게 됩니다. 
 - 서버는 user의 요청이 올때, history를 가지고 있지 않다면, DynamoDB와 같은 데이터베이스에서 관련 history를 가져와서 chat에서 활용해야 합니다. 따라서 매번 다른 서버로 전달되면 chat history를 관리할 수 없습니다. (WebSocket도 첫 Request는 N개의 서버중 하나에 요청이 전달되지만, dedicated session 이용하므로 같은 문제가 발생하지 않음)
@@ -32,6 +32,20 @@
 - [Real-Time Communication with SSE in FastAPI: Enhancing Task Processing Efficiency](https://princyprakash.medium.com/real-time-communication-with-sse-in-fastapi-enhancing-task-processing-efficiency-bc8ba9b3c29f)
 
 ## 구현
+
+user-id를 key로하는 pubsub을 통해 SSE 세션을 가지고 있는 lambda(chat)에 질문을 전달합니다. 상세한 call flow는 아래를 참조합니다.
+   
+![image](https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/58ea2356-9bc0-4848-b154-8ac99647f3fe)
+
+1) Client에서 SSE 세션을 연결하기 위해 '/chat'으로 connect를 요청하면, lambda(chat)은 session-id를 생성하여 client에 전달합니다. labda(chat)은 Redis를 session-id를 key로 subscribe 합니다.
+2) Client는 '/query'로 session-id와 user-id를 전달하면 lamba(query)가 받아서, Redis에 publish 합니다.
+3) Redis는 session-id로 subscribe하고 있는 lamba(chat)에 user-id를 전달합니다.
+4) lambda(chat)이 session-id의 user-id를 알게 되었으므로, Redis에 user-id로 subscribe 동작을 수행합니다.
+5) Client가 '/query'를 이용하여 질문(question)을 하면, Redis를 통해 lambda(chat)에 전달됩니다.
+6) lambda(chat)은 LLM에 질문을 전달합여 답변(answer)를 얻습니다.
+7) lambda(chat)은 LLM의 answer를 stream으로 Client에 전달합니다.
+
+
 
 ### 필요한 패키지
 
