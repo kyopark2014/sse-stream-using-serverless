@@ -42,6 +42,11 @@ AWS API Gateway를 사용하여 모든 수신 요청을 라우팅하여 Lambda�
 - SSE로 구현시 단순하고 쉽게 구현가능하지만, Scale 고려시 pubsub을 위한 Redis cluster를 구성하여야 합니다.
 - WebSocket는 세션관리에 대한 부담등의 이슈가 있고, WebSocket용 API Gateway를 써야하지만 Redis가 불필요합니다.
 
+
+## Reference 
+
+[Deploy an ML serverless inference endpoint using FastAPI, AWS Lambda and AWS CDK](https://github.com/aws-samples/lambda-serverless-inference-fastapi/tree/main)
+
 ## Reference 
 
 [Data Streams with Server-Sent Events](https://bytewax.io/blog/data-stream-server-sent-events)
