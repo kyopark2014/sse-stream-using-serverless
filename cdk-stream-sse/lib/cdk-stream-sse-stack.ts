@@ -265,10 +265,10 @@ export class CdkStreamSseStack extends cdk.Stack {
       },
     });  
    
-    new cdk.CfnOutput(this, `WebUrl-for-${projectName}`, {
+    /*new cdk.CfnOutput(this, `WebUrl-for-${projectName}`, {
       value: 'https://'+distribution.domainName+'/index.html',      
       description: 'The web url of request for chat',
-    });        
+    });        */
 
     // Lambda - Upload
     const lambdaUpload = new lambda.Function(this, `lambda-upload-for-${projectName}`, {
