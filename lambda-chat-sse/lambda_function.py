@@ -63,7 +63,6 @@ selected_ps_embedding = 0
 separated_chat_history = os.environ.get('separated_chat_history')
 
 useParallelRAG = os.environ.get('useParallelRAG', 'true')
-roleArn = os.environ.get('roleArn')
 top_k = int(os.environ.get('numberOfRelevantDocs', '8'))
 selected_LLM = 0
 MSG_LENGTH = 100
