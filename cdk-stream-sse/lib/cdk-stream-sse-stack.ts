@@ -545,7 +545,25 @@ export class CdkStreamSseStack extends cdk.Stack {
           }, 
         }
       ]
-    }); 
+    });
+    
+    chast_sse.addMethod('GET', new apiGateway.LambdaIntegration(lambdaChatSSE, {
+      passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+      credentialsRole: role,
+      integrationResponses: [{
+        statusCode: '200',
+      }], 
+      proxy:true, 
+    }), {
+      methodResponses: [  
+        {
+          statusCode: '200',
+          responseModels: {
+            'application/json': apiGateway.Model.EMPTY_MODEL,
+          }, 
+        }
+      ]
+    });
 
     // cloudfront setting for api gateway    
     distribution.addBehavior("/chat", new origins.RestApiOrigin(api), {

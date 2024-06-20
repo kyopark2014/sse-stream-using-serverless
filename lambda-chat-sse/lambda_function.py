@@ -1987,6 +1987,7 @@ async def run(request: Request):
 
 def lambda_handler(event, context):
     print('event: ', event)
+    print('context: ', context)
     
     asgi_handler = Mangum(app)
     response = asgi_handler(
