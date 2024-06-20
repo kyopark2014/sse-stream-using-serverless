@@ -3,7 +3,7 @@
 ## SSE와 WebSocket 차이점
 
 - Websocket은 양방향세션을 생성하고, SSE는 server to client로만 메시지를 전송합니다. 즉, 클라이언트는 수신만 가능합니다.
-- 일반적인 HTTP는 서버에서 응답을 전송하고 TCP를 disconnection 하지만 content-type을 text/event-stream로 등록하면, disconnection을 수행하지 않습니다.
+- 일반적인 HTTP는 server에서 응답을 전송하고 TCP를 disconnection 하지만 content-type을 text/event-stream로 등록하면, disconnection을 수행하지 않습니다.
 - SSE의 경우에 Cache-Control은 no-cache로 설정합니다.
 - SSE는 GET method만 허용합니다.
 - SSE는 연결이 끊어질때 자동으로 재연결을 하므로 편리합니다. (Websocket은 세션관리를 직접 수행)
@@ -13,13 +13,13 @@
 
 ## Load balancing
 
-- SSE의 경우에 HTTP GET을 사용하므로 N개의 Server가 Load balancer를 이용해 서비스 된다면, Client의 요청은 N개의 서버중에 하나에 전달되게 됩니다.
+- SSE의 경우에 HTTP GET을 사용하므로 N개의 Server가 Load balancer를 이용해 서비스 된다면, Client의 요청은 N개의 server중에 하나에 전달되게 됩니다.
 - SSE의 경우에 HTTP 세션이 유지되므로, client와 server는 항상 매칭되어야 합니다. 또한, server는 chat history를 가지고 있으므로, 매번 다른 server로 request가 전달된다면, 일관된 history를 유지할 수 없습니다. (WebSocket API Gateway는 세션이 유지되는 동안에 항상 같은 server로 client의 요청을 전달됩니다.)
 - SSE에서는 HTTP 세션을 유지하기 위하여 아래 방법을 이용할 수 있습니다.
 
-1) pubsub 서버를 이용하여 HTTP GET 요청을 subscribe 하고 있는 서버들에게 요청을 전달하고, 현재 open된 연결을 가진 서버에서 응답하도록 합니다.
+1) pubsub server를 이용하여 HTTP GET 요청을 subscribe 하고 있는 server들에게 요청을 전달하고, 현재 open된 연결을 가진 server에서 응답하도록 합니다.
    
-2) ALB의 sticky session을 이용해 항상 같은 서버로 연결할 수 있습니다. [Server-Sent events in scalable backend](https://stackoverflow.com/questions/30458969/server-sent-events-in-scalable-backend)
+2) ALB의 sticky session을 이용해 항상 같은 server로 연결할 수 있습니다. [Server-Sent events in scalable backend](https://stackoverflow.com/questions/30458969/server-sent-events-in-scalable-backend)
 
 여기서는 pubsub을 이용하여 구현하는 방법을 활용하고자 합니다. 
 
