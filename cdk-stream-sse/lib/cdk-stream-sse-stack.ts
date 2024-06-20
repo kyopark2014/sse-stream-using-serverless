@@ -115,19 +115,33 @@ export class CdkStreamSseStack extends cdk.Stack {
       description: 'copy commend for web pages',
     });
 
+    // API Gateway
+    const api = new apiGateway.RestApi(this, `api-chatbot-for-${projectName}`, {
+      description: 'API Gateway for chatbot',
+      endpointTypes: [apiGateway.EndpointType.REGIONAL],
+      binaryMediaTypes: ['application/pdf', 'text/plain', 'text/csv', 'application/vnd.ms-powerpoint', 'application/vnd.ms-excel', 'application/msword'], 
+      deployOptions: {
+        stageName: stage,
+
+        // logging for debug
+        // loggingLevel: apiGateway.MethodLoggingLevel.INFO, 
+        // dataTraceEnabled: true,
+      },
+    });  
+
     // deploy cloudfront
-    const cfdeploy = new cfDeployment(scope, `cf-deployment-of-${projectName}`, s3Bucket)
+    const cf = new cfDeployment(scope, `cf-deployment-of-${projectName}`, s3Bucket, api)
 
     // deploy others
-    const components = new componentDeployment(scope, `component-deployment-of-${projectName}`, s3Bucket, cfdeploy.distribution)
-    components.addDependency(cfdeploy)
+    const components = new componentDeployment(scope, `component-deployment-of-${projectName}`, s3Bucket, cf.distribution.domainName, api)
+    components.addDependency(cf)
   }
 }
 
 export class cfDeployment extends cdk.Stack {
   public distribution: cloudFront.Distribution;
 
-  constructor(scope: Construct, id: string, s3Bucket: any, props?: cdk.StackProps) {    
+  constructor(scope: Construct, id: string, s3Bucket: s3.Bucket, api: apiGateway.RestApi, props?: cdk.StackProps) {    
     super(scope, id, props);
     
     // cloudfront
@@ -144,11 +158,42 @@ export class cfDeployment extends cdk.Stack {
       value: this.distribution.domainName,
       description: 'The domain name of the Distribution',
     });
+
+    // cloudfront setting  
+    this.distribution.addBehavior("/upload", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });    
+
+    this.distribution.addBehavior("/query", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
+
+    this.distribution.addBehavior("/history", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
+
+    this.distribution.addBehavior("/delete", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
+
+    this.distribution.addBehavior("/chat", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
   }
 } 
 
 export class componentDeployment extends cdk.Stack {
-  constructor(scope: Construct, id: string, s3Bucket: any, distribution: cloudFront.Distribution, props?: cdk.StackProps) {    
+  constructor(scope: Construct, id: string, s3Bucket: any, distributionName: string, api: apiGateway.RestApi, props?: cdk.StackProps) {    
     super(scope, id, props);
     // DynamoDB for call log
     const callLogTableName = `db-call-log-for-${projectName}`;
@@ -276,23 +321,9 @@ export class componentDeployment extends cdk.Stack {
     role.addManagedPolicy({
       managedPolicyArn: 'arn:aws:iam::aws:policy/AWSLambdaExecute',
     }); 
-
-    // API Gateway
-    const api = new apiGateway.RestApi(this, `api-chatbot-for-${projectName}`, {
-      description: 'API Gateway for chatbot',
-      endpointTypes: [apiGateway.EndpointType.REGIONAL],
-      binaryMediaTypes: ['application/pdf', 'text/plain', 'text/csv', 'application/vnd.ms-powerpoint', 'application/vnd.ms-excel', 'application/msword'], 
-      deployOptions: {
-        stageName: stage,
-
-        // logging for debug
-        // loggingLevel: apiGateway.MethodLoggingLevel.INFO, 
-        // dataTraceEnabled: true,
-      },
-    });  
-   
+       
     new cdk.CfnOutput(this, `WebUrl-for-${projectName}`, {
-      value: 'https://'+distribution.domainName+'/index.html',      
+      value: 'https://'+distributionName+'/index.html',      
       description: 'The web url of request for chat',
     });        
 
@@ -337,13 +368,6 @@ export class componentDeployment extends cdk.Stack {
       }); 
     }
 
-    // cloudfront setting  
-    distribution.addBehavior("/upload", new origins.RestApiOrigin(api), {
-      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
-      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
-      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    });    
-
     // Lambda - queryResult
     const lambdaQueryResult = new lambda.Function(this, `lambda-query-for-${projectName}`, {
       runtime: lambda.Runtime.NODEJS_16_X, 
@@ -378,13 +402,6 @@ export class componentDeployment extends cdk.Stack {
       ]
     }); 
 
-    // cloudfront setting for api gateway    
-    distribution.addBehavior("/query", new origins.RestApiOrigin(api), {
-      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
-      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
-      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    });
-
     // Lambda - getHistory
     const lambdaGetHistory = new lambda.Function(this, `lambda-gethistory-for-${projectName}`, {
       runtime: lambda.Runtime.NODEJS_16_X, 
@@ -418,13 +435,6 @@ export class componentDeployment extends cdk.Stack {
       ]
     }); 
 
-    // cloudfront setting for api gateway    
-    distribution.addBehavior("/history", new origins.RestApiOrigin(api), {
-      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
-      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
-      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    });
-
     // Lambda - deleteItems
     const lambdaDeleteItems = new lambda.Function(this, `lambda-deleteItems-for-${projectName}`, {
       runtime: lambda.Runtime.NODEJS_16_X, 
@@ -456,14 +466,7 @@ export class componentDeployment extends cdk.Stack {
           }, 
         }
       ]
-    }); 
-
-    // cloudfront setting for api gateway    
-    distribution.addBehavior("/delete", new origins.RestApiOrigin(api), {
-      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
-      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
-      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    });
+    });     
 
     const googleApiSecret = new secretsmanager.Secret(this, `google-api-secret-for-${projectName}`, {
       description: 'secret for google api key',
@@ -528,7 +531,7 @@ export class componentDeployment extends cdk.Stack {
         opensearch_account: opensearch_account,
         opensearch_passwd: opensearch_passwd,
         opensearch_url: opensearch_url,
-      //  path: 'https://'+distribution.domainName+'/',   
+        path: 'https://'+distributionName+'/',   
         debugMessageMode: debugMessageMode,
         useParallelRAG: useParallelRAG,
         numberOfRelevantDocs: numberOfRelevantDocs,
@@ -566,12 +569,7 @@ export class componentDeployment extends cdk.Stack {
       ]
     }); 
 
-    // cloudfront setting for api gateway    
-    distribution.addBehavior("/chat", new origins.RestApiOrigin(api), {
-      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
-      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
-      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    });
+    
     
     if(debug) {
       new cdk.CfnOutput(this, 'function-chat-sse-arn', {
@@ -630,7 +628,7 @@ export class componentDeployment extends cdk.Stack {
           opensearch_passwd: opensearch_passwd,
           opensearch_url: opensearch_url,
           roleArn: roleLambdaSSE.roleArn,
-          path: 'https://'+distribution.domainName+'/', 
+          path: 'https://'+distributionName+'/', 
           sqsUrl: queueUrl[i],
           max_object_size: String(max_object_size),
           supportedFormat: supportedFormat,
