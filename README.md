@@ -24,7 +24,7 @@
 
 user-id를 key로하는 pubsub을 통해 SSE 세션을 가지고 있는 lambda(chat)에 질문을 전달합니다. 상세한 call flow는 아래를 참조합니다.
 
-<img src="https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/d255f0d5-8d43-4af2-98cd-53446fb3b581" width="600">
+<img src="https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/ca12a24a-a8c7-4c3c-8a2e-1754d78b666f" width="600">
 
 
 1) Client에서 SSE 세션을 연결하기 위해 '/chat'으로 connect를 요청하면, lambda(chat)은 session-id를 생성하여 SSE로 client에 전달합니다. 또한, labda(chat)은 session-id를 key로 Redis를 subscribe 합니다.
