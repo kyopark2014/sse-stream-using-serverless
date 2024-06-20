@@ -1947,16 +1947,37 @@ def getResponse(connectionId, jsonBody):
 from fastapi import FastAPI, APIRouter, Request
 from mangum import Mangum
 from sse_starlette.sse import EventSourceResponse
+from uuid import uuid4
+import asyncio
 
 app = FastAPI()
 router = APIRouter()
 # router = APIRouter(prefix="/sse")
 
 
+async def generator(req: Request):
+    print('generator')
+    event_id = str(uuid4())
+    
+    while True:
+        is_disconnected = await req.is_disconnected()
+        if is_disconnected:
+            break
+        
+        for i in range(3):
+            yield {
+                "event": "init",
+                "id": event_id,
+                "data": {"event-id": event_id, "msg": i}
+            }
+        await asyncio.sleep(1)
+                
 @router.get("/chat")
-async def sendMessage():
+async def sendMessage(req: Request):
     #return {"message": "Hello World..."}
-    return EventSourceResponse({"message": "Hello World..."})
+    print('req: ', req)
+    
+    return EventSourceResponse(generator(req))
 
 
 #@app.get("/chat")
