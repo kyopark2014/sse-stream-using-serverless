@@ -1953,16 +1953,25 @@ def getResponse(connectionId, jsonBody):
 
     return msg, reference
 
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Request
 from mangum import Mangum
+from sse_starlette.sse import EventSourceResponse
 
 app = FastAPI()
 
-@app.get("/")
+@app.get("/chat")
 async def root():
   return {"message": "Hello World"}
 
 router = APIRouter()
+async def run(request: Request):
+    print("request: ", request)
+    
+    output = {
+        'request': request
+    }
+    
+    return EventSourceResponse(json.dumps(output))
 
 #@router.get("/")
 #async def get_users():

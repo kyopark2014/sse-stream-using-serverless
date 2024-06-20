@@ -22,6 +22,7 @@ RUN /var/lang/bin/python3 -m pip install python-docx
 RUN /var/lang/bin/python3 -m pip install pytz
 RUN /var/lang/bin/python3 -m pip install "fastapi[all]"
 RUN /var/lang/bin/python3 -m pip install mangum
+RUN /var/lang/bin/python3 -m pip install sse_starlette
 
 RUN /var/lang/bin/python3 -m pip install botocore --upgrade
 RUN /var/lang/bin/python3 -m pip install boto3 --upgrade
