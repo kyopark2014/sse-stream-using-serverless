@@ -56,3 +56,4 @@ ASGI(Asynchronous Server Gateway Interface)
 
 [How to use server-sent events (SSE) with FastAPI?](https://devdojo.com/bobbyiliev/how-to-use-server-sent-events-sse-with-fastapi)
 
+[Server Sent Events](https://ko.javascript.info/server-sent-events)
