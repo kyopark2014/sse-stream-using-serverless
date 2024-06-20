@@ -87,11 +87,11 @@ function sendMessage(message) {
     }     
 }
 
-function connect(endpoint, type) {
-    const sse = new EventSource("/chat");
+function connect(endpoint) {
+    const eventSource = new EventSource("/chat");
 
     // message 
-    sse.onmessage = function (event) {        
+    eventSource.onmessage = function (event) {        
         console.log('event: ', event)
         response = JSON.parse(event.data)
 
@@ -141,7 +141,7 @@ function connect(endpoint, type) {
 
 
     // connection event
-    sse.onopen = function () {
+    eventSource.onopen = function () {
         console.log('connected...');
         isConnected = true;
 
@@ -164,33 +164,30 @@ function connect(endpoint, type) {
         else {
             retry_count = 3
         }
-
-        if(type == 'initial')
-            setInterval(ping, 40000);  // ping interval: 40 seconds
     };
     
     // disconnect
-    sse.onclose = function () {
+    eventSource.onclose = function () {
         console.log('disconnected...!');
         isConnected = false;
 
-        sse.close();
+        eventSource.close();
         console.log('the session will be closed');
     };
 
     // error
-    sse.onerror = function (error) {
+    eventSource.onerror = function (error) {
         console.log(error);
 
-        sse.close();
+        eventSource.close();
         console.log('the session will be closed');
     };
 
-    return sse;
+    return eventSource;
 }
 
 console.log("trying to connect...")
-connect(endpoint, 'inition')    
+connect(endpoint)    
 
 
 

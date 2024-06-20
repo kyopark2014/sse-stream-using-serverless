@@ -1953,6 +1953,27 @@ def getResponse(connectionId, jsonBody):
 
     return msg, reference
 
+from fastapi import FastAPI, APIRouter
+from mangum import Mangum
+
+app = FastAPI()
+
+@app.get("/")
+async def root():
+  return {"message": "Hello World"}
+
+router = APIRouter()
+
+#@router.get("/")
+#async def get_users():
+#    return {"message": "Users!"}
+
+handler = Mangum(app)
+
+
+
+
+
 def lambda_handler(event, context):
     print('event: ', event)
     

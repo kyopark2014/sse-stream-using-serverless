@@ -535,7 +535,7 @@ export class CdkStreamSseStack extends cdk.Stack {
       integrationResponses: [{
         statusCode: '200',
       }], 
-      proxy:false, 
+      proxy:true, 
     }), {
       methodResponses: [  
         {
