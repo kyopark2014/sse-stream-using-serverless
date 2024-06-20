@@ -92,8 +92,12 @@ function connect(endpoint) {
 
     // message 
     eventSource.onmessage = function (event) {        
-        console.log('event: ', JSON.stringify(event))
-        response = JSON.parse(event.data)
+        console.log('event: ', JSON.stringify(event));
+        response = JSON.parse(event.data);
+        console.log('response: ', response);
+        
+        lastEventId = response.get['lastEventId'];
+        console.log('lastEventId: ', lastEventId);
 
         if(response.request_id) {
             if(!indexList.get(response.request_id+':receive')) { // the first received message
