@@ -18,18 +18,7 @@
 - SSE의 경우에 HTTP GET을 사용하므로 N개의 서버가 Load balancer를 통해 연결되어 있다면, 매번 Client의 요청은 N개의 서버중에 하나에 전달되게 됩니다. 
 - 서버는 user의 요청이 올때, history를 가지고 있지 않다면, DynamoDB와 같은 데이터베이스에서 관련 history를 가져와서 chat에서 활용해야 합니다. 따라서 매번 다른 서버로 전달되면 chat history를 관리할 수 없습니다. (WebSocket도 첫 Request는 N개의 서버중 하나에 요청이 전달되지만, dedicated session 이용하므로 같은 문제가 발생하지 않음)
 - 이를 위해 2가지 방법이 알려져 있는것으로 보엽니다. 1) pubsub 서버를 두어서 HTTP GET 요청을 subscribe 하고 있는 서버들에게 전달하면, 현재 open된 연결을 가진 서버에서 응답하는 방식 2) ALB의 sticky session을 이용해 항상 같은 서버로 연결하는 방식이 있습니다. [Server-Sent events in scalable backend](https://stackoverflow.com/questions/30458969/server-sent-events-in-scalable-backend)
-- [Bedrock Access Gateway](https://github.com/aws-samples/bedrock-access-gateway): ALB 이용
-- [streaming response from Amazon Bedrock with FastAPI](https://github.com/awslabs/aws-lambda-web-adapter/tree/main/examples/fastapi-response-streaming): PUBSUB (Our event source server will be a publisher and FastAPI app will be subscriber. Publishers send messages to channels, while subscribers listen to specific channels for messages.)
-- [Realtime Log Streaming with FastAPI and Server-Sent Events](https://amittallapragada.github.io/docker/fastapi/python/2020/12/23/server-side-events.html): FAST API 구현 사례
-- [Server-Sent Events in FastAPI using Redis Pub/Sub](https://medium.com/deepdesk/server-sent-events-in-fastapi-using-redis-pub-sub-eba1dbfe8031): PUBSUB 사용
-- [How to Stream JSON Data Using Server-Sent Events and FastAPI in Python over HTTP?](https://www.workfall.com/learning/blog/how-to-stream-json-data-using-server-sent-events-and-fastapi-in-python-over-http/): Kafka
-- [Server-Sent Events(SSE), Redis pub/sub, Kafka로 알림 기능 개선하기](https://velog.io/@xogml951/Server-Sent-EventsSSE-Redis-pubsub-Kafka%EB%A1%9C-%EC%95%8C%EB%A6%BC-%EA%B8%B0%EB%8A%A5-%EA%B0%9C%EC%84%A0%ED%95%98%EA%B8%B0): Redis PUBSUB
-  
-- [FastAPI with streaming data and Materialize](https://devdojo.com/bobbyiliev/how-to-use-server-sent-events-sse-with-fastapi): PUBSUB
-- [What are SSE (Server-Sent Events) and how do they work?](https://bunny.net/academy/http/what-is-sse-server-sent-events-and-how-do-they-work/)
-- [Redis Pub/Sub 기반 SSE(Server-Sent Events) 실시간 알림 적용기](https://velog.io/@wwlee94/Redis-PubSub-Base-Server-Sent-Event)
 
-- [Real-Time Communication with SSE in FastAPI: Enhancing Task Processing Efficiency](https://princyprakash.medium.com/real-time-communication-with-sse-in-fastapi-enhancing-task-processing-efficiency-bc8ba9b3c29f)
 
 ## 구현
 
@@ -73,3 +62,23 @@ ASGI(Asynchronous Server Gateway Interface)
 [How to use server-sent events (SSE) with FastAPI?](https://devdojo.com/bobbyiliev/how-to-use-server-sent-events-sse-with-fastapi)
 
 [Server Sent Events](https://ko.javascript.info/server-sent-events)
+
+[Bedrock Access Gateway](https://github.com/aws-samples/bedrock-access-gateway): ALB 이용
+
+[streaming response from Amazon Bedrock with FastAPI](https://github.com/awslabs/aws-lambda-web-adapter/tree/main/examples/fastapi-response-streaming): PUBSUB (Our event source server will be a publisher and FastAPI app will be subscriber. Publishers send messages to channels, while subscribers listen to specific channels for messages.)
+
+[Realtime Log Streaming with FastAPI and Server-Sent Events](https://amittallapragada.github.io/docker/fastapi/python/2020/12/23/server-side-events.html): FAST API 구현 사례
+
+[Server-Sent Events in FastAPI using Redis Pub/Sub](https://medium.com/deepdesk/server-sent-events-in-fastapi-using-redis-pub-sub-eba1dbfe8031): PUBSUB 사용
+
+[How to Stream JSON Data Using Server-Sent Events and FastAPI in Python over HTTP?](https://www.workfall.com/learning/blog/how-to-stream-json-data-using-server-sent-events-and-fastapi-in-python-over-http/): Kafka
+
+[Server-Sent Events(SSE), Redis pub/sub, Kafka로 알림 기능 개선하기](https://velog.io/@xogml951/Server-Sent-EventsSSE-Redis-pubsub-Kafka%EB%A1%9C-%EC%95%8C%EB%A6%BC-%EA%B8%B0%EB%8A%A5-%EA%B0%9C%EC%84%A0%ED%95%98%EA%B8%B0): Redis PUBSUB
+  
+[FastAPI with streaming data and Materialize](https://devdojo.com/bobbyiliev/how-to-use-server-sent-events-sse-with-fastapi): PUBSUB
+
+[What are SSE (Server-Sent Events) and how do they work?](https://bunny.net/academy/http/what-is-sse-server-sent-events-and-how-do-they-work/)
+
+[Redis Pub/Sub 기반 SSE(Server-Sent Events) 실시간 알림 적용기](https://velog.io/@wwlee94/Redis-PubSub-Base-Server-Sent-Event)
+
+- [Real-Time Communication with SSE in FastAPI: Enhancing Task Processing Efficiency](https://princyprakash.medium.com/real-time-communication-with-sse-in-fastapi-enhancing-task-processing-efficiency-bc8ba9b3c29f)
