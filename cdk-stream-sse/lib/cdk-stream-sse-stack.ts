@@ -120,7 +120,7 @@ export class CdkStreamSseStack extends cdk.Stack {
 
     // deploy others
     const components = new componentDeployment(scope, `component-deployment-of-${projectName}`, s3Bucket, cfdeploy.distribution)
-    // components.addDependency(cfdeploy)
+    components.addDependency(cfdeploy)
   }
 }
 
@@ -148,7 +148,7 @@ export class cfDeployment extends cdk.Stack {
 } 
 
 export class componentDeployment extends cdk.Stack {
-  constructor(scope: Construct, id: string, s3Bucket: any, distribution: any, props?: cdk.StackProps) {    
+  constructor(scope: Construct, id: string, s3Bucket: any, distribution: cloudFront.Distribution, props?: cdk.StackProps) {    
     super(scope, id, props);
     // DynamoDB for call log
     const callLogTableName = `db-call-log-for-${projectName}`;
