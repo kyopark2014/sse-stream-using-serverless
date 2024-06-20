@@ -88,7 +88,7 @@ function sendMessage(message) {
 }
 
 function connect(endpoint) {
-    const eventSource = new EventSource("/chat:demo");
+    const eventSource = new EventSource("/chat");
 
     // message 
     eventSource.onmessage = function (event) {        
