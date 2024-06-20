@@ -1966,9 +1966,10 @@ app = FastAPI()
 async def root() -> dict:
   return {"message": "Hello World"}
 
-@app.get("/")
+@app.get("/chat/stream")
 async def root() -> dict:
   return {"message": "Hello World2"}
+
 
 router = APIRouter()
 async def run(request: Request):
