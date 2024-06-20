@@ -288,16 +288,7 @@ def get_ps_embedding():
     
     return bedrock_ps_embedding
 
-def sendMessage(id, body):
-    try:
-        client.post_to_connection(
-            ConnectionId=id, 
-            Data=json.dumps(body)
-        )
-    except Exception:
-        err_msg = traceback.format_exc()
-        print('err_msg: ', err_msg)
-        raise Exception ("Not able to send a message")
+
 
 def sendResultMessage(connectionId, requestId, msg):    
     result = {
@@ -1956,46 +1947,89 @@ def getResponse(connectionId, jsonBody):
 from fastapi import FastAPI, APIRouter, Request
 from mangum import Mangum
 from sse_starlette.sse import EventSourceResponse
-app = FastAPI(root_path="/prod")
 
 app = FastAPI()
-#app = FastAPI(root_path="/prod")
+router = APIRouter()
+# router = APIRouter(prefix="/sse")
 
 
-@app.get("/chat")
+@router.get("/chat")
+async def sendMessage():
+    return {"message": "Hello World..."}
+
+#@app.get("/chat")
+
+"""
 async def root() -> dict:
   return {"message": "Hello World"}
+"""
 
-@app.get("/chat/stream")
-async def root() -> dict:
-  return {"message": "Hello World2"}
+"""
+async def chat(request: Request) -> EventSourceResponse:
+    return EventSourceResponse(sendMessage(request.client.host, request.query_params))
+"""
 
+app.include_router(router)
 
-router = APIRouter()
-async def run(request: Request):
+"""
+async def sendMessage(id, body):
     print("request: ", request)
     
     output = {
         'request': request
     }
     
-    return EventSourceResponse(json.dumps(output))
+    return EventSourceResponse(json.dumps(body))
+"""
 
-#@router.get("/")
 #async def get_users():
 #    return {"message": "Users!"}
 
+def sendMessage(id, body):
+    try:
+        client.post_to_connection(
+            ConnectionId=id, 
+            Data=json.dumps(body)
+        )
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('err_msg: ', err_msg)
+        raise Exception ("Not able to send a message")
 
 def lambda_handler(event, context):
     print('event: ', event)
     print('context: ', context)
     
     asgi_handler = Mangum(app)
+    print('run handler')
     response = asgi_handler(
         event, context
     )  # Call the instance with the event arguments
-
     print('response', response)
+    
+    """
+    jsonBody = {
+        'body': "안녕",
+        'conv_type': "normal",
+        'function_type': "",
+        'rag_type': "",
+        'request_id': "7f089010-826f-4f0c-b2c3-36411dada473",
+        'request_time': "2024-06-20 19:47:36",
+        'type': "text",
+        'user_id': "demo"
+    }
+    requestId  = jsonBody['request_id']
+    try:    
+        msg, reference = getResponse(jsonBody)
+        print('msg+reference: ', msg+reference)
+                                        
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('err_msg: ', err_msg)
+
+        # sendErrorMessage(connectionId, requestId, err_msg)    
+        raise Exception ("Not able to send a message")
+    """
     
     return response
     
