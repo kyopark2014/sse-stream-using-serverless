@@ -39,6 +39,7 @@ mangum: API를 핸들러로 래핑할 수 있게 해주며, 이를 AWS Lambda �
 
 AWS API Gateway를 사용하여 모든 수신 요청을 라우팅하여 Lambda를 호출하고 애플리케이션 내부에서 라우팅을 처리할 수 있습니다. 
 
+ASGI(Asynchronous Server Gateway Interface)
 
 
 
