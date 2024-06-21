@@ -92,6 +92,7 @@ function connect(endpoint) {
 
     // message 
     eventSource.onmessage = function (event) {        
+        console.log('event: ', event);
         console.log('event: ', JSON.stringify(event));
         response = JSON.parse(event.data);
         console.log('response: ', response);
