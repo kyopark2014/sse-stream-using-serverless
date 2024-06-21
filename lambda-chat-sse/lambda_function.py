@@ -104,10 +104,8 @@ def subscribe_redis(redis_client, channel):
             #deliveryVoiceMessage(msg)
     
 def initiate_redis():
-    global redis_client
-    
     try: 
-        redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
+        client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
         print('Redis was connected')
         
     except Exception:
@@ -115,7 +113,9 @@ def initiate_redis():
         print('error message: ', err_msg)                    
         raise Exception ("Not able to request to redis")        
     
-initiate_redis()
+    return client
+    
+redis_client = initiate_redis()
 
 def redis_pubsub(channel):
     print('subscribe redis: ', channel)
