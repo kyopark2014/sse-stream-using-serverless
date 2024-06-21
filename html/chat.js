@@ -93,9 +93,11 @@ function connect(endpoint) {
     // message 
     eventSource.onmessage = function (event) {        
         console.log('event(raw): ', event);
-        console.log('data: ', event.data);
+
+        data = JSON.parse(event.data)
+        console.log('data: ', data);
         
-        lastEventId = response.get('lastEventId');
+        lastEventId = event.get('lastEventId');
         console.log('lastEventId: ', lastEventId);
 
         if(response.request_id) {
