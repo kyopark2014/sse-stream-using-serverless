@@ -9,9 +9,11 @@ import json
 import redis
 import traceback
 
-# for Redis
+# Redis
 redisAddress = os.environ.get('redisAddress')
+print('redisAddress: ',redisAddress)
 redisPort = os.environ.get('redisPort')
+print('redisPort: ',redisPort)
 
 def initiate_redis():
     try: 
@@ -26,6 +28,24 @@ def initiate_redis():
     return client
     
 redis_client = initiate_redis()
+
+"""
+def subscribe_redis(channel):    
+    pubsub = redis_client.pubsub()
+    pubsub.subscribe(channel)
+    print('successfully subscribed for channel: ', channel)    
+            
+    for message in pubsub.listen():
+        print('message: ', message)
+                
+        if message['data'] != 1:            
+            msg = message['data'].encode('utf-8').decode('unicode_escape')
+            # msg = msg[1:len(msg)-1]
+            print('msg: ', msg)                        
+            #deliveryVoiceMessage(msg)
+
+subscribe_redis('a1234')
+"""
 
 def lambda_handler(event, context):
     print('event: ', json.dumps(event))
