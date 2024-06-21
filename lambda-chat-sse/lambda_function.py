@@ -2026,16 +2026,8 @@ def sendMessage(id, body):
         print('err_msg: ', err_msg)
         raise Exception ("Not able to send a message")
 
-def lambda_handler(event, context):
-    print('event: ', event)
-    print('context: ', context)
-    
-    handler = Mangum(app)    
-    
-    response = handler(
-        event, context
-    )  
-    print('response', response)
+def test():
+    print('query', "안녕")
     
     jsonBody = {
         'body': "안녕",
@@ -2058,6 +2050,19 @@ def lambda_handler(event, context):
 
         # sendErrorMessage(connectionId, requestId, err_msg)    
         raise Exception ("Not able to send a message")
+    
+def lambda_handler(event, context):
+    print('event: ', event)
+    print('context: ', context)
+    
+    handler = Mangum(app)    
+    
+    response = handler(
+        event, context
+    )  
+    print('response', response)
+    
+    test()
     
     return response
     
