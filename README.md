@@ -5,7 +5,7 @@
 
 전체적인 Architecture는 아래와 같습니다.
 
-![image](https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/54a73196-dc68-4e24-8652-c0fdd6844f5b)
+<img src="https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/54a73196-dc68-4e24-8652-c0fdd6844f5b" width="800">
 
 ## SSE (Server-Sent-Events)
 
