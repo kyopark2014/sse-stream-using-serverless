@@ -1979,11 +1979,16 @@ async def generator(req: Request):
         #        "data": {"event-id": event_id, "msg": i}
         #    }
         #await asyncio.sleep(1)
+    """
     yield {
         "event": "init",
         "id": event_id,
         "data": {"event-id": event_id, "msg": "nothing"}
     }
+    """
+    
+    yield f"event: init"
+    await asyncio.sleep(2)
                 
 @router.get("/chat")
 async def sendMessage(req: Request) -> EventSourceResponse:
