@@ -59,8 +59,14 @@ let sentTime = new HashMap();
 let undelivered = new HashMap();
 let retry_count = 0;
 
+let callee = "AWS";
+let index=0;
 
-
+let userId = localStorage.getItem('userId'); // set userID if exists 
+if(userId=="") {
+    userId = uuidv4();
+}
+console.log('userId: ', userId);
 
 function sendMessage(message) {
     if(!isConnected) {
@@ -80,9 +86,7 @@ function sendMessage(message) {
         return false
     }
     else {
-        // webSocket.send(JSON.stringify(message));     
-        // send 함수
-
+        requestToRedis(JSON.stringify(message))
         console.log('message: ', message);   
 
         return true;
@@ -153,7 +157,6 @@ function connect(endpoint) {
         }
     };
 
-
     // connection event
     eventSource.onopen = function () {
         console.log('connected...');        
@@ -206,14 +209,7 @@ connect(endpoint)
 
 
 
-let callee = "AWS";
-let index=0;
 
-let userId = localStorage.getItem('userId'); // set userID if exists 
-if(userId=="") {
-    userId = uuidv4();
-}
-console.log('userId: ', userId);
 
 let conversationType = localStorage.getItem('conv_type'); // set conv_type if exists 
 if(conversationType=="") {
@@ -302,24 +298,6 @@ function onSend(e) {
             conv_type = 'qa',
             rag_type = 'opensearch',
             function_type = 'rag'
-        }
-        else if(conversationType=='normal-claude3') {
-            type = "text",
-            conv_type = 'normal',
-            rag_type = '',
-            function_type = 'normal-claude3'
-        }
-        else if(conversationType=='normal-claude2') {
-            type = "text",
-            conv_type = 'normal',
-            rag_type = '',
-            function_type = 'normal-claude2'
-        }
-        else if(conversationType=='normal-claude_instant') {
-            type = "text",
-            conv_type = 'normal',
-            rag_type = '',
-            function_type = 'normal-claude_instant'
         }
         else {
             type = "text",
@@ -618,21 +596,9 @@ attachFile.addEventListener('click', function(){
                             console.log(xmlHttp.responseText);
 
                             function_type = 'upload'
-                            if(conversationType=='qa-all') {
-                                conv_type = 'qa',
-                                rag_type = 'all'
-                            }
-                            else if(conversationType=='qa-kendra') {
-                                conv_type = 'qa',
-                                rag_type = 'kendra'
-                            }
-                            else if(conversationType=='qa-opensearch') {
+                            if(conversationType=='qa-opensearch') {
                                 conv_type = 'qa',
                                 rag_type = 'opensearch'
-                            }
-                            else if(conversationType=='qa-faiss') {
-                                conv_type = 'qa',
-                                rag_type = 'faiss'
                             }
                             else {
                                 conv_type = conversationType,
@@ -748,6 +714,25 @@ function deleteItems(userId) {
     console.log("request: " + JSON.stringify(requestObj));
 
     var blob = new Blob([JSON.stringify(requestObj)], {type: 'application/json'});
+
+    xhr.send(blob);            
+}
+
+function requestToRedis(message) {
+    const uri = "redis";
+    const xhr = new XMLHttpRequest();
+
+    xhr.open("POST", uri, true);
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            let response = JSON.parse(xhr.responseText);
+            console.log("response: " + JSON.stringify(response));
+        }
+    };
+    
+    console.log("request: " + message);
+
+    var blob = new Blob(message, {type: 'application/json'});
 
     xhr.send(blob);            
 }
