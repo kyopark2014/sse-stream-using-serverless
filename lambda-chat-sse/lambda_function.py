@@ -2014,7 +2014,7 @@ async def generator(req: Request):
     #        break
         
     output = {
-        "event": "init",
+        "type": "init",
         "session-id": sessionId,
         "data": {
             "msg": ""

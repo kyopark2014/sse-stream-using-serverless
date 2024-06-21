@@ -23,10 +23,25 @@ except Exception:
 def lambda_handler(event, context):
     print('event: ', json.dumps(event))
     
-    userId = event['user-id']      
-    msg = event
+    type = event['type']
+    userId = event['user-id']
+    # msg = event
     
-    channel = f"{userId}"   
+    if type == 'init':
+        sessionId = event['session-id']
+        channel = f"{sessionId}"        
+        msg = {
+            'type': type,
+            'session-id': sessionId,
+            'user-id': userId
+        }
+    else:
+        channel = f"{userId}"   
+        msg = event
+        
+    print('channel: ', channel)
+    print('msg: ', msg)
+    
     try: 
         redis_client.publish(channel=channel, message=json.dumps(msg))
         print('successfully published: ', json.dumps(msg))

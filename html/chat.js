@@ -109,15 +109,15 @@ function connect(endpoint) {
         data = JSON.parse(event.data);
         console.log('data: ', data);
 
-        console.log('evnet: ', data['event']);
+        console.log('type: ', data['type']);
 
-        if(data['event'] == 'init') {
+        if(data['type'] == 'init') {
             sessionId = data['session-id'];
             console.log('sessionId: ', sessionId);
 
             // send userId using pubsub
             let message = {
-                "event": "user-id",
+                "type": "init",
                 "session-id": sessionId,
                 "user-id": userId
             }
