@@ -1995,7 +1995,7 @@ async def generator(req: Request):
     await asyncio.sleep(3)
                 
 @router.get("/chat")
-async def sendMessage(req: Request) -> EventSourceResponse:    
+async def SSLsendMessage(req: Request) -> EventSourceResponse:    
     #return {"message": "Hello World..."}    
     return EventSourceResponse(generator(req))
 
