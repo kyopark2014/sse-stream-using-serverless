@@ -237,7 +237,7 @@ export class CdkStreamSseStack extends cdk.Stack {
     );  
 
     // For Redis
-    roleLambdaSSE.addManagedPolicy(
+    roleLambdaSSE.addManagedPolicy( 
       ManagedPolicy.fromAwsManagedPolicyName("AmazonElastiCacheFullAccess")
     );
     roleLambdaSSE.addManagedPolicy(
