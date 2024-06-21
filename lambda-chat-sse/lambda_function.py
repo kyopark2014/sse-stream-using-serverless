@@ -81,6 +81,46 @@ token_counter_history = 0
 minDocSimilarity = 200
 projectName = os.environ.get('projectName')
 
+# Redis
+# for Redis
+redisAddress = os.environ.get('redisAddress')
+print('redisAddress: ',redisAddress)
+redisPort = os.environ.get('redisPort')
+print('redisPort: ',redisPort)
+
+def subscribe_redis(redis_client, channel):    
+    pubsub = redis_client.pubsub()
+    pubsub.subscribe(channel)
+    print('successfully subscribed for channel: ', channel)    
+            
+    for message in pubsub.listen():
+        print('message: ', message)
+                
+        if message['data'] != 1:            
+            msg = message['data'].encode('utf-8').decode('unicode_escape')
+            # msg = msg[1:len(msg)-1]
+            print('msg: ', msg)    
+                    
+            #deliveryVoiceMessage(msg)
+    
+def initiate_redis():
+    global redis_client
+    
+    try: 
+        redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
+        print('Redis was connected')
+        
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to redis")        
+    
+initiate_redis()
+
+def redis_pubsub(channel):
+    print('subscribe redis: ', channel)
+    subscribe_redis(redis_client, channel)
+
 # google search api
 googleApiSecret = os.environ.get('googleApiSecret')
 secretsmanager = boto3.client('secretsmanager')
@@ -1970,6 +2010,8 @@ async def generator(req: Request):
     
     sessionId = str(uuid4())
     print('sessionId: ', sessionId)
+    
+    redis_pubsub(sessionId)
     
     #while True:
     #    is_disconnected = await req.is_disconnected()

@@ -589,7 +589,9 @@ export class CdkStreamSseStack extends cdk.Stack {
         googleApiSecret: googleApiSecret.secretName,
         projectName: projectName,
         separated_chat_history: separated_chat_history,
-        enalbeParentDocumentRetrival: enalbeParentDocumentRetrival    
+        enalbeParentDocumentRetrival: enalbeParentDocumentRetrival,
+        redisAddress: redisCache.attrRedisEndpointAddress,
+        redisPort: redisCache.attrRedisEndpointPort
       }
     });     
     lambdaChatSSE.grantInvoke(new iam.ServicePrincipal('apigateway.amazonaws.com'));  

@@ -114,6 +114,15 @@ function connect(endpoint) {
         if(data['event'] == 'init') {
             sessionId = data['session-id'];
             console.log('sessionId: ', sessionId);
+
+            // send userId using pubsub
+            let message = {
+                "event": "user-id",
+                "session-id": sessionId,
+                "user-id": userId
+            }
+            requestToRedis(JSON.stringify(message))
+            console.log('message: ', message);  
         }
         else {
             if(response.request_id) {
