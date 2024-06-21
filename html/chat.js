@@ -68,6 +68,7 @@ if(userId=="") {
 }
 console.log('userId: ', userId);
 
+let isConnected = false;
 function sendMessage(message) {
     if(!isConnected) {
         console.log('reconnect...'); 

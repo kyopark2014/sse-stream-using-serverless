@@ -2034,6 +2034,6 @@ def lambda_handler(event, context):
     )  
     print('response', response)
     
-    test()
+    # test()
     
     return response
