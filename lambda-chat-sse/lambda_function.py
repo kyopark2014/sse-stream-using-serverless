@@ -2011,7 +2011,11 @@ async def generator(req: Request):
     sessionId = str(uuid4())
     print('sessionId: ', sessionId)
     
-    redis_pubsub(sessionId)
+    print('subscribe: ', sessionId)
+    
+    redis_pubsub("a1234")
+    
+    # redis_pubsub(sessionId)
     
     #while True:
     #    is_disconnected = await req.is_disconnected()
