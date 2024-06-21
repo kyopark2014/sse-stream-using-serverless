@@ -58,6 +58,7 @@ ASGI(Asynchronous Server Gateway Interface)
 
 ## Reference 
 
+
 [Deploy an ML serverless inference endpoint using FastAPI, AWS Lambda and AWS CDK](https://github.com/aws-samples/lambda-serverless-inference-fastapi/tree/main)
 
 [Data Streams with Server-Sent Events](https://bytewax.io/blog/data-stream-server-sent-events)
@@ -84,4 +85,6 @@ ASGI(Asynchronous Server Gateway Interface)
 
 [Redis Pub/Sub 기반 SSE(Server-Sent Events) 실시간 알림 적용기](https://velog.io/@wwlee94/Redis-PubSub-Base-Server-Sent-Event)
 
-- [Real-Time Communication with SSE in FastAPI: Enhancing Task Processing Efficiency](https://princyprakash.medium.com/real-time-communication-with-sse-in-fastapi-enhancing-task-processing-efficiency-bc8ba9b3c29f)
+[Real-Time Communication with SSE in FastAPI: Enhancing Task Processing Efficiency](https://princyprakash.medium.com/real-time-communication-with-sse-in-fastapi-enhancing-task-processing-efficiency-bc8ba9b3c29f)
+
+[Sever Sent Event(SSE) 사용하기](https://blog.naver.com/pjt3591oo/223274970013)
