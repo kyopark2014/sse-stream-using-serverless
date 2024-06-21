@@ -236,6 +236,16 @@ export class CdkStreamSseStack extends cdk.Stack {
       }),
     );  
 
+    // For Redis
+    roleLambdaSSE.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonElastiCacheFullAccess")
+    );
+    roleLambdaSSE.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AWSLambdaENIManagementAccess"
+      )
+    );
+
     // opensearch
     // Permission for OpenSearch
     const domainName = projectName
@@ -549,16 +559,6 @@ export class CdkStreamSseStack extends cdk.Stack {
       },
     });
     tavilyApiSecret.grantRead(roleLambdaSSE) 
-
-    // For Redis
-    roleLambdaSSE.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName("AmazonElastiCacheFullAccess")
-    );
-    roleLambdaSSE.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSLambdaENIManagementAccess"
-      )
-    );
 
     // lambda-chat using SSE    
     const lambdaChatSSE = new lambda.DockerImageFunction(this, `lambda-chat-sse-for-${projectName}`, {
