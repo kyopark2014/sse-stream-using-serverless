@@ -13,7 +13,7 @@ from urllib import parse
 from botocore.config import Config
 from PIL import Image
 import requests
-import redis
+import redis.asyncio as redis
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.memory import ConversationBufferWindowMemory
@@ -87,10 +87,13 @@ print('redisAddress: ',redisAddress)
 redisPort = os.environ.get('redisPort')
 print('redisPort: ',redisPort)
     
-def initiate_redis():
+async def initiate_redis():
     try: 
         client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
         print('Redis was connected')
+        
+        print(f"Ping successful: {await client.ping()}")
+        # await client.aclose()
         
     except Exception:
         err_msg = traceback.format_exc()
@@ -126,9 +129,9 @@ def publishTest():
 publishTest()
 """        
 
-def subscribe_redis(channel):    
+async def subscribe_redis(channel):    
     pubsub = redis_client.pubsub()
-    pubsub.subscribe(channel)
+    await pubsub.subscribe(channel)
     print('successfully subscribed for channel: ', channel)    
             
     for message in pubsub.listen():
