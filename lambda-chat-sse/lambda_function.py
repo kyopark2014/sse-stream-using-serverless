@@ -290,32 +290,32 @@ def get_ps_embedding():
 
 
 
-def sendResultMessage(connectionId, requestId, msg):    
+def sendResultMessage(requestId, msg):    
     result = {
         'request_id': requestId,
         'msg': msg,
         'status': 'completed'
     }
     #print('debug: ', json.dumps(debugMsg))
-    sendMessage(connectionId, result)
+    sendMessage(result)
 
-def sendDebugMessage(connectionId, requestId, msg):
+def sendDebugMessage(requestId, msg):
     debugMsg = {
         'request_id': requestId,
         'msg': msg,
         'status': 'debug'
     }
     #print('debug: ', json.dumps(debugMsg))
-    sendMessage(connectionId, debugMsg)
+    sendMessage(debugMsg)
 
-def sendErrorMessage(connectionId, requestId, msg):
+def sendErrorMessage(requestId, msg):
     errorMsg = {
         'request_id': requestId,
         'msg': msg,
         'status': 'error'
     }
     print('error: ', json.dumps(errorMsg))
-    sendMessage(connectionId, errorMsg)
+    sendMessage(errorMsg)
 
 def isKorean(text):
     # check korean
@@ -330,7 +330,7 @@ def isKorean(text):
         print('Not Korean: ', word_kor)
         return False
 
-def general_conversation(connectionId, requestId, chat, query):
+def general_conversation(requestId, chat, query):
     global time_for_inference, history_length, token_counter_history    
     time_for_inference = history_length = token_counter_history = 0
     
@@ -356,7 +356,7 @@ def general_conversation(connectionId, requestId, chat, query):
                 
     chain = prompt | chat    
     try: 
-        isTyping(connectionId, requestId)  
+        isTyping(requestId)  
         stream = chain.invoke(
             {
                 "history": history,
@@ -364,7 +364,7 @@ def general_conversation(connectionId, requestId, chat, query):
             }
         )
         
-        msg = readStreamMsg(connectionId, requestId, stream.content)    
+        msg = readStreamMsg(requestId, stream.content)    
                             
         usage = stream.response_metadata['usage']
         print('prompt_tokens: ', usage['prompt_tokens'])
@@ -376,7 +376,7 @@ def general_conversation(connectionId, requestId, chat, query):
         err_msg = traceback.format_exc()
         print('error message: ', err_msg)        
             
-        sendErrorMessage(connectionId, requestId, err_msg)    
+        sendErrorMessage(requestId, err_msg)    
         raise Exception ("Not able to request to LLM")
 
     if debugMessageMode == 'true':  
@@ -522,7 +522,7 @@ def get_summary(chat, docs):
     
     return summary
 
-def generate_code(connectionId, requestId, chat, text, context, mode):
+def generate_code(requestId, chat, text, context, mode):
     if mode == 'py':    
         system = (
             """다음의 <context> tag안에는 질문과 관련된 python code가 있습니다. 주어진 예제를 참조하여 질문과 관련된 python 코드를 생성합니다. Assistant의 이름은 서연입니다. 결과는 <result> tag를 붙여주세요.
@@ -547,7 +547,7 @@ def generate_code(connectionId, requestId, chat, text, context, mode):
     
     chain = prompt | chat    
     try: 
-        isTyping(connectionId, requestId)  
+        isTyping(requestId)  
         stream = chain.invoke(
             {
                 "context": context,
@@ -555,7 +555,7 @@ def generate_code(connectionId, requestId, chat, text, context, mode):
             }
         )
         
-        geenerated_code = readStreamMsg(connectionId, requestId, stream.content)
+        geenerated_code = readStreamMsg(requestId, stream.content)
                               
         geenerated_code = stream.content        
         print('result of code generation: ', geenerated_code)
@@ -602,7 +602,7 @@ def summary_of_code(chat, code, mode):
     
     return summary
 
-def revise_question(connectionId, requestId, chat, query):    
+def revise_question(requestId, chat, query):    
     global history_length, token_counter_history    
     history_length = token_counter_history = 0
         
@@ -648,7 +648,7 @@ def revise_question(connectionId, requestId, chat, query):
         err_msg = traceback.format_exc()
         print('error message: ', err_msg)        
             
-        sendErrorMessage(connectionId, requestId, err_msg)    
+        sendErrorMessage(requestId, err_msg)    
         raise Exception ("Not able to request to LLM")
 
     if debugMessageMode == 'true':  
@@ -668,12 +668,12 @@ def revise_question(connectionId, requestId, chat, query):
             token_counter_history = chat.get_num_tokens(chat_history)
             print('token_size of history: ', token_counter_history)
             
-        sendDebugMessage(connectionId, requestId, f"새로운 질문: {revised_question}\n * 대화이력({str(history_length)}자, {token_counter_history} Tokens)을 활용하였습니다.")
+        sendDebugMessage(requestId, f"새로운 질문: {revised_question}\n * 대화이력({str(history_length)}자, {token_counter_history} Tokens)을 활용하였습니다.")
             
     return revised_question    
     # return revised_question.replace("\n"," ")
 
-def query_using_RAG_context(connectionId, requestId, chat, context, revised_question):    
+def query_using_RAG_context(requestId, chat, context, revised_question):    
     if isKorean(revised_question)==True:
         system = (
             """다음의 <context> tag안의 참고자료를 이용하여 상황에 맞는 구체적인 세부 정보를 충분히 제공합니다. Assistant의 이름은 서연이고, 모르는 질문을 받으면 솔직히 모른다고 말합니다.
@@ -699,21 +699,21 @@ def query_using_RAG_context(connectionId, requestId, chat, context, revised_ques
     chain = prompt | chat
     
     try: 
-        isTyping(connectionId, requestId)  
+        isTyping(requestId)  
         stream = chain.invoke(
             {
                 "context": context,
                 "input": revised_question,
             }
         )
-        msg = readStreamMsg(connectionId, requestId, stream.content)    
+        msg = readStreamMsg(requestId, stream.content)    
         print('msg: ', msg)
         
     except Exception:
         err_msg = traceback.format_exc()
         print('error message: ', err_msg)        
             
-        sendErrorMessage(connectionId, requestId, err_msg)    
+        sendErrorMessage(requestId, err_msg)    
         raise Exception ("Not able to request to LLM")
 
     return msg
@@ -909,16 +909,16 @@ def getAllowTime():
 
     return timeStr
 
-def isTyping(connectionId, requestId):    
+def isTyping(requestId):    
     msg_proceeding = {
         'request_id': requestId,
         'msg': 'Proceeding...',
         'status': 'istyping'
     }
     #print('result: ', json.dumps(result))
-    sendMessage(connectionId, msg_proceeding)
+    sendMessage(msg_proceeding)
 
-def readStreamMsg(connectionId, requestId, stream):
+def readStreamMsg(requestId, stream):
     msg = ""
     if stream:
         for event in stream:
@@ -931,7 +931,7 @@ def readStreamMsg(connectionId, requestId, stream):
                 'status': 'proceeding'
             }
             #print('result: ', json.dumps(result))
-            sendMessage(connectionId, result)
+            sendMessage(result)
     # print('msg: ', msg)
     return msg
 
@@ -1156,14 +1156,14 @@ def retrieve_docs_from_vectorstore(vectorstore_opensearch, query, top_k):
         
     return relevant_docs
 
-def get_answer_using_RAG(chat, text, conv_type, connectionId, requestId, bedrock_embedding):
+def get_answer_using_RAG(chat, text, conv_type, requestId, bedrock_embedding):
     global time_for_revise, time_for_rag, time_for_inference, time_for_priority_search, number_of_relevant_docs 
     time_for_revise = time_for_rag = time_for_inference = time_for_priority_search = number_of_relevant_docs = 0
     
     start_time_for_revise = time.time()
     
      # revise question
-    revised_question = revise_question(connectionId, requestId, chat, text)     
+    revised_question = revise_question(requestId, chat, text)     
     print('revised_question: ', revised_question)
     
     end_time_for_revise = time.time()
@@ -1171,7 +1171,7 @@ def get_answer_using_RAG(chat, text, conv_type, connectionId, requestId, bedrock
     print('processing time for revised question: ', time_for_revise)
     
     # retrieve relevant documents from RAG
-    selected_relevant_docs = retrieve_docs_from_RAG(text, connectionId, requestId, bedrock_embedding)
+    selected_relevant_docs = retrieve_docs_from_RAG(text, requestId, bedrock_embedding)
     
     # get context
     relevant_context = ""
@@ -1187,7 +1187,7 @@ def get_answer_using_RAG(chat, text, conv_type, connectionId, requestId, bedrock
     print('processing time for RAG: ', time_for_rag)
         
     # query using RAG context
-    msg = query_using_RAG_context(connectionId, requestId, chat, relevant_context, revised_question)
+    msg = query_using_RAG_context(requestId, chat, relevant_context, revised_question)
 
     reference = ""
     if len(selected_relevant_docs)>=1 and enableReference=='true':
@@ -1204,7 +1204,7 @@ def get_answer_using_RAG(chat, text, conv_type, connectionId, requestId, bedrock
 
     return msg, reference
     
-def retrieve_docs_from_RAG(revised_question, connectionId, requestId, bedrock_embedding):
+def retrieve_docs_from_RAG(revised_question, requestId, bedrock_embedding):
     vectorstore_opensearch = OpenSearchVectorSearch(
         index_name = "idx-*", # all
         is_aoss = False,
@@ -1281,8 +1281,8 @@ def retrieve_docs_from_RAG(revised_question, connectionId, requestId, bedrock_em
                 err_msg = traceback.format_exc()
                 print('error message: ', err_msg)       
 
-                sendErrorMessage(connectionId, requestId, "Not able to use Google API. Check the credentials")    
-                #sendErrorMessage(connectionId, requestId, err_msg)    
+                sendErrorMessage(requestId, "Not able to use Google API. Check the credentials")    
+                #sendErrorMessage(requestId, err_msg)    
                 #raise Exception ("Not able to search using google api") 
                     
     end_time_for_priority_search = time.time() 
@@ -1537,7 +1537,7 @@ Question: {input}
 Thought:{agent_scratchpad}
 """)
         
-def run_agent_react(connectionId, requestId, chat, query):
+def run_agent_react(requestId, chat, query):
     prompt_template = get_react_prompt_template()
     print('prompt_template: ', prompt_template)
     
@@ -1546,7 +1546,7 @@ def run_agent_react(connectionId, requestId, chat, query):
     #print('prompt_template: ', prompt_template)
     
      # create agent
-    isTyping(connectionId, requestId)
+    isTyping(requestId)
     agent = create_react_agent(chat, tools, prompt_template)
     
     agent_executor = AgentExecutor(
@@ -1562,16 +1562,16 @@ def run_agent_react(connectionId, requestId, chat, query):
     print('response: ', response)
 
     # streaming    
-    msg = readStreamMsg(connectionId, requestId, response['output'])
+    msg = readStreamMsg(requestId, response['output'])
 
     msg = response['output']
     print('msg: ', msg)
             
     return msg
 
-def run_agent_react_chat_using_revised_question(connectionId, requestId, chat, query):
+def run_agent_react_chat_using_revised_question(requestId, chat, query):
     # revise question
-    revised_question = revise_question(connectionId, requestId, chat, query)     
+    revised_question = revise_question(requestId, chat, query)     
     print('revised_question: ', revised_question)  
         
     # get template based on react 
@@ -1579,7 +1579,7 @@ def run_agent_react_chat_using_revised_question(connectionId, requestId, chat, q
     print('prompt_template: ', prompt_template)
     
     # create agent
-    isTyping(connectionId, requestId)
+    isTyping(requestId)
     agent = create_react_agent(chat, tools, prompt_template)
     
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
@@ -1589,7 +1589,7 @@ def run_agent_react_chat_using_revised_question(connectionId, requestId, chat, q
     print('response: ', response)
     
     # streaming
-    msg = readStreamMsg(connectionId, requestId, response['output'])
+    msg = readStreamMsg(requestId, response['output'])
 
     msg = response['output']
     print('msg: ', msg)
@@ -1631,13 +1631,13 @@ New input: {input}
 Thought:{agent_scratchpad}
 """)
     
-def run_agent_react_chat(connectionId, requestId, chat, query):
+def run_agent_react_chat(requestId, chat, query):
     # get template based on react 
     prompt_template = get_react_chat_prompt_template()
     print('prompt_template: ', prompt_template)
     
     # create agent
-    isTyping(connectionId, requestId)
+    isTyping(requestId)
     agent = create_react_agent(chat, tools, prompt_template)
     
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
@@ -1653,7 +1653,7 @@ def run_agent_react_chat(connectionId, requestId, chat, query):
     print('response: ', response)
     
     # streaming
-    msg = readStreamMsg(connectionId, requestId, response['output'])
+    msg = readStreamMsg(requestId, response['output'])
 
     msg = response['output']
     print('msg: ', msg)
@@ -2016,6 +2016,10 @@ async def sendMessage(id, body):
 #    return {"message": "Users!"}
 
 def sendMessage(id, body):
+    
+    print('body: ', body)
+    
+    """
     try:
         client.post_to_connection(
             ConnectionId=id, 
@@ -2025,6 +2029,7 @@ def sendMessage(id, body):
         err_msg = traceback.format_exc()
         print('err_msg: ', err_msg)
         raise Exception ("Not able to send a message")
+    """
 
 def test():
     print('query', "안녕")
@@ -2048,7 +2053,7 @@ def test():
         err_msg = traceback.format_exc()
         print('err_msg: ', err_msg)
 
-        # sendErrorMessage(connectionId, requestId, err_msg)    
+        # sendErrorMessage(requestId, err_msg)    
         raise Exception ("Not able to send a message")
     
 def lambda_handler(event, context):
