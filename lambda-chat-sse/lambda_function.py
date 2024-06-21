@@ -1974,26 +1974,16 @@ async def generator(req: Request):
     #    if is_disconnected:
     #        break
         
-        #for i in range(3):
-        #    yield {
-        #        "event": "init",
-        #        "id": sessionId,
-        #        "data": {"event-id": sessionId, "msg": i}
-        #    }
-        #await asyncio.sleep(1)
-    
     output = {
         "event": "init",
         "session-id": sessionId,
         "data": {
             "msg": ""
         }
-    }
-    
+    }    
     yield json.dumps(output)
     
-    #yield f"event: init"
-    #await asyncio.sleep(2)
+    await asyncio.sleep(1)
                 
 @router.get("/chat")
 async def sendMessage(req: Request) -> EventSourceResponse:    
