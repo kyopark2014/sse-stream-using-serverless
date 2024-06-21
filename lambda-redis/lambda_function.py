@@ -20,25 +20,12 @@ except Exception:
     print('error message: ', err_msg)                    
     raise Exception ("Not able to request to LLM")
 
-requestId = str(uuid.uuid4())     
 def lambda_handler(event, context):
     print('event: ', json.dumps(event))
     
-    global requestId
-    
-    userId = event['userId']        
-    query = event['query']
-    state = event['state']    
-        
-    msg = {
-        "userId": userId,
-        "requestId": requestId,
-        "query": query,
-        "state": state
-    }
-    
-    if state == 'completed':
-        requestId = str(uuid.uuid4())  
+    userId = event['userId']      
+    query = event['query']          
+    msg = event
     
     channel = f"{userId}"   
     try: 
