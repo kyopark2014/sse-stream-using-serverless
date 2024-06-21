@@ -1,6 +1,15 @@
 # SSE를 이용한 Streaming Chatbot
 
-## SSE와 WebSocket 차이점
+
+## Architecture 
+
+전체적인 Architecture는 아래와 같습니다.
+
+![image](https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/54a73196-dc68-4e24-8652-c0fdd6844f5b)
+
+## SSE (Server-Sent-Events)
+
+### WebSocket과 비교
 
 - Websocket은 양방향세션을 생성하고, SSE는 server to client로만 메시지를 전송합니다. 즉, 클라이언트는 수신만 가능합니다.
 - 일반적인 HTTP는 server에서 응답을 전송하고 TCP를 disconnection 하지만 content-type을 text/event-stream로 등록하면, disconnection을 수행하지 않습니다.
@@ -11,7 +20,7 @@
 <img src="https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/f7a2c834-d11c-44ed-9f87-36e8b6afd864" width="400">
 
 
-## Load balancing
+### Load balancing
 
 - SSE의 경우에 HTTP GET을 사용하므로 N개의 Server가 Load balancer를 이용해 서비스 된다면, Client의 요청은 N개의 server중에 하나에 전달되게 됩니다.
 - SSE의 경우에 HTTP 세션이 유지되므로, client와 server는 항상 매칭되어야 합니다. 또한, server는 chat history를 가지고 있으므로, 매번 다른 server로 request가 전달된다면, 일관된 history를 유지할 수 없습니다. (WebSocket API Gateway는 세션이 유지되는 동안에 항상 같은 server로 client의 요청을 전달됩니다.)
