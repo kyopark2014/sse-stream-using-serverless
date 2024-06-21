@@ -101,11 +101,11 @@ function connect(endpoint) {
         data = JSON.parse(event.data);
         console.log('data: ', data);
 
-        console.log('evnet: ', data['evnet']);
+        console.log('evnet: ', data['event']);
 
         if(data['event'] == 'init') {
             sessionId = data['session-id'];
-            console.log('sessionId: ', sessionId);        
+            console.log('sessionId: ', sessionId);
         }
         else {
             if(response.request_id) {

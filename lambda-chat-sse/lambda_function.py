@@ -1964,6 +1964,8 @@ async def print_request(request):
         print(f'request body         : {await request.body()}')
         
 async def generator(req: Request):
+    await print_request(req)
+    
     sessionId = str(uuid4())
     print('sessionId: ', sessionId)
     
@@ -1991,13 +1993,11 @@ async def generator(req: Request):
     yield json.dumps(output)
     
     #yield f"event: init"
-    await asyncio.sleep(2)
+    #await asyncio.sleep(2)
                 
 @router.get("/chat")
-async def sendMessage(req: Request) -> EventSourceResponse:
-    await print_request(req)
-    #return {"message": "Hello World..."}
-    
+async def sendMessage(req: Request) -> EventSourceResponse:    
+    #return {"message": "Hello World..."}    
     return EventSourceResponse(generator(req))
 
 
@@ -2044,11 +2044,10 @@ def lambda_handler(event, context):
     print('event: ', event)
     print('context: ', context)
     
-    asgi_handler = Mangum(app)
-    print('run handler')
-    response = asgi_handler(
+    handler = Mangum(app)    
+    response = handler(
         event, context
-    )  # Call the instance with the event arguments
+    )  
     print('response', response)
     
     """
