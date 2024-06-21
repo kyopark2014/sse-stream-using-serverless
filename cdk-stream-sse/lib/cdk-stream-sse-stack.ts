@@ -560,6 +560,24 @@ export class CdkStreamSseStack extends cdk.Stack {
     });
     tavilyApiSecret.grantRead(roleLambdaSSE) 
 
+    // Security group
+    const lambdaSG = new ec2.SecurityGroup(this, `lambda-sg-for-${projectName}`, {
+      description: `security group of lambda for ${projectName}`,      
+      vpc: vpc,
+      allowAllOutbound: true,
+      securityGroupName: `lambda-sg-for-${projectName}`,
+    });
+
+    lambdaSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTcp(), 'allow all access from the world');
+    // Peer.anyIpv4(), Peer.anyIpv6(), Peer.ipv4(), Peer.ipv6(), Peer.prefixList(), Peer.securityGroupId(), EndpointGroup.connectionsPeer(), ipv4('10.200.0.0/24')
+    // ec2.Port.tcp(80) allTcp(), allTraffic(), tcp(port), ec2.Port.tcp(5439)
+
+    lambdaSG.connections.allowTo(
+      redisSecurityGroup,
+      ec2.Port.tcp(6379),
+      "Allow this lambda function connect to the redis cache"
+    );
+
     // lambda-chat using SSE    
     const lambdaChatSSE = new lambda.DockerImageFunction(this, `lambda-chat-sse-for-${projectName}`, {
       description: 'lambda for chat using SSE',
@@ -569,6 +587,7 @@ export class CdkStreamSseStack extends cdk.Stack {
       memorySize: 8192,
       role: roleLambdaSSE,
       vpc: vpc,  // for Redis
+      securityGroups: [lambdaSG],
       environment: {
         s3_bucket: s3Bucket.bucketName,
         s3_prefix: s3_prefix,
@@ -683,31 +702,13 @@ export class CdkStreamSseStack extends cdk.Stack {
       queue[i].grantSendMessages(lambdaS3eventManager); // permision for SQS putItem
     }
 
-    const lambdaSG = new ec2.SecurityGroup(this, `lambda-sg-for-${projectName}`, {
-      description: `security group of lambda for ${projectName}`,      
-      vpc: vpc,
-      allowAllOutbound: true,
-      securityGroupName: `lambda-sg-for-${projectName}`,
-    });
-
-    lambdaSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTcp(), 'allow all access from the world');
-    // Peer.anyIpv4(), Peer.anyIpv6(), Peer.ipv4(), Peer.ipv6(), Peer.prefixList(), Peer.securityGroupId(), EndpointGroup.connectionsPeer(), ipv4('10.200.0.0/24')
-    // ec2.Port.tcp(80) allTcp(), allTraffic(), tcp(port), ec2.Port.tcp(5439)
-
-    lambdaSG.connections.allowTo(
-      redisSecurityGroup,
-      ec2.Port.tcp(6379),
-      "Allow this lambda function connect to the redis cache"
-    );
-
     // Lambda for document manager
     let lambdDocumentManager:any[] = [];
     for(let i=0;i<LLM_embedding.length;i++) {
       lambdDocumentManager[i] = new lambda.DockerImageFunction(this, `lambda-document-manager-for-${projectName}-${i}`, {
         description: 'S3 document manager',
         functionName: `lambda-document-manager-for-${projectName}-${i}`,
-        role: roleLambdaSSE,
-        securityGroups: [lambdaSG],
+        role: roleLambdaSSE,        
         code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-document-manager')),
         timeout: cdk.Duration.seconds(600),
         memorySize: 8192,
