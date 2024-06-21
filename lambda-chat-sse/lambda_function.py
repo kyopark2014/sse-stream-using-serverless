@@ -2031,10 +2031,13 @@ def lambda_handler(event, context):
     print('context: ', context)
     
     handler = Mangum(app)    
+    
+    """
     response = handler(
         event, context
     )  
     print('response', response)
+    """
     
     """
     jsonBody = {
