@@ -65,7 +65,7 @@ let retry_count = 0;
 function sendMessage(message) {
     if(!isConnected) {
         console.log('reconnect...'); 
-        webSocket = connect(endpoint, 'reconnect');
+        const eventSource = new EventSource("/chat");
         
         if(langstate=='korean') {
             addNotifyMessage("재연결중입니다. 연결후 자동 재전송합니다.");
@@ -80,7 +80,9 @@ function sendMessage(message) {
         return false
     }
     else {
-        webSocket.send(JSON.stringify(message));     
+        // webSocket.send(JSON.stringify(message));     
+        // send 함수
+
         console.log('message: ', message);   
 
         return true;
@@ -93,6 +95,7 @@ function connect(endpoint) {
 
     // message 
     eventSource.onmessage = function (event) {        
+        isConnected = true;
         console.log('event(raw): ', event);
 
         lastEventId = event['lastEventId'];
@@ -153,7 +156,7 @@ function connect(endpoint) {
 
     // connection event
     eventSource.onopen = function () {
-        console.log('connected...');
+        console.log('connected...');        
         isConnected = true;
 
         if(undelivered.size() && retry_count>0) {
@@ -189,6 +192,7 @@ function connect(endpoint) {
     // error
     eventSource.onerror = function (error) {
         console.log(error);
+        isConnected = false;        
 
         eventSource.close();
         console.log('the session will be closed');
