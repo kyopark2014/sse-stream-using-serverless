@@ -82,26 +82,10 @@ minDocSimilarity = 200
 projectName = os.environ.get('projectName')
 
 # Redis
-# for Redis
 redisAddress = os.environ.get('redisAddress')
 print('redisAddress: ',redisAddress)
 redisPort = os.environ.get('redisPort')
 print('redisPort: ',redisPort)
-
-def subscribe_redis(redis_client, channel):    
-    pubsub = redis_client.pubsub()
-    pubsub.subscribe(channel)
-    print('successfully subscribed for channel: ', channel)    
-            
-    for message in pubsub.listen():
-        print('message: ', message)
-                
-        if message['data'] != 1:            
-            msg = message['data'].encode('utf-8').decode('unicode_escape')
-            # msg = msg[1:len(msg)-1]
-            print('msg: ', msg)    
-                    
-            #deliveryVoiceMessage(msg)
     
 def initiate_redis():
     try: 
@@ -117,10 +101,20 @@ def initiate_redis():
     
 redis_client = initiate_redis()
 
-def redis_pubsub(channel):
-    print('subscribe redis: ', channel)
-    subscribe_redis(redis_client, channel)
-
+def subscribe_redis(channel):    
+    pubsub = redis_client.pubsub()
+    pubsub.subscribe(channel)
+    print('successfully subscribed for channel: ', channel)    
+            
+    for message in pubsub.listen():
+        print('message: ', message)
+                
+        if message['data'] != 1:            
+            msg = message['data'].encode('utf-8').decode('unicode_escape')
+            # msg = msg[1:len(msg)-1]
+            print('msg: ', msg)                        
+            #deliveryVoiceMessage(msg)
+            
 # google search api
 googleApiSecret = os.environ.get('googleApiSecret')
 secretsmanager = boto3.client('secretsmanager')
@@ -2012,7 +2006,7 @@ async def generator(req: Request):
     print('sessionId: ', sessionId)
     
     # subscribe sessionId
-    redis_pubsub(sessionId)
+    subscribe_redis(sessionId)
     
     #while True:
     #    is_disconnected = await req.is_disconnected()

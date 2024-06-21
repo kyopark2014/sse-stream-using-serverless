@@ -23,8 +23,7 @@ except Exception:
 def lambda_handler(event, context):
     print('event: ', json.dumps(event))
     
-    userId = event['userId']      
-    query = event['query']          
+    userId = event['user-id']      
     msg = event
     
     channel = f"{userId}"   
@@ -43,7 +42,6 @@ def lambda_handler(event, context):
         "isBase64Encoded": False,
         'statusCode': 200,
         'body': json.dumps({ 
-            "channel": channel,
-            "query": json.dumps(query)
+            "channel": channel
         })
     }
