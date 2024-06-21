@@ -2015,7 +2015,7 @@ async def sendMessage(id, body):
 #async def get_users():
 #    return {"message": "Users!"}
 
-def sendMessage(id, body):
+def sendMessage(body):
     
     print('body: ', body)
     
