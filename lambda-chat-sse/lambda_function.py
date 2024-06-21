@@ -101,6 +101,31 @@ def initiate_redis():
     
 redis_client = initiate_redis()
 
+
+def publishTest():
+    sessionId = 'a1234'
+    msg = {
+        'type': 'init',
+        'session-id': sessionId,
+        'user-id': 'demo'
+    }
+    
+    channel = f"{sessionId}"           
+    print('channel: ', channel)
+    print('msg: ', msg)
+    
+    try: 
+        redis_client.publish(channel=channel, message=json.dumps(msg))
+        print('successfully published: ', json.dumps(msg))
+    
+    except Exception:
+        err_msg = traceback.format_exc()
+        print('error message: ', err_msg)                    
+        raise Exception ("Not able to request to redis")
+
+publishTest()
+        
+
 def subscribe_redis(channel):    
     pubsub = redis_client.pubsub()
     pubsub.subscribe(channel)

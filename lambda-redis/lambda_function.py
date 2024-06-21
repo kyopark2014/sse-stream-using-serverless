@@ -23,15 +23,15 @@ except Exception:
 def lambda_handler(event, context):
     print('event: ', json.dumps(event))
     
-    type = event['type']
+    eventType = event['type']
     userId = event['user-id']
     # msg = event
     
-    if type == 'init':
+    if eventType == 'init':
         sessionId = event['session-id']
         channel = f"{sessionId}"        
         msg = {
-            'type': type,
+            'type': eventType,
             'session-id': sessionId,
             'user-id': userId
         }
@@ -49,7 +49,7 @@ def lambda_handler(event, context):
     except Exception:
         err_msg = traceback.format_exc()
         print('error message: ', err_msg)                    
-        raise Exception ("Not able to request to LLM")
+        raise Exception ("Not able to request to redis")
         
     msg = "success"
     
