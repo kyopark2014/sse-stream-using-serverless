@@ -37,6 +37,12 @@ from pytz import timezone
 from langchain_community.tools.tavily_search import TavilySearchResults
 from opensearchpy import OpenSearch
 
+from fastapi import FastAPI, APIRouter, Request
+from mangum import Mangum
+from sse_starlette.sse import EventSourceResponse
+from uuid import uuid4
+import asyncio
+
 s3 = boto3.client('s3')
 s3_bucket = os.environ.get('s3_bucket') # bucket name
 s3_prefix = os.environ.get('s3_prefix')
@@ -1944,28 +1950,14 @@ def getResponse(jsonBody):
 
     return msg, reference
 
-from fastapi import FastAPI, APIRouter, Request
-from mangum import Mangum
-from sse_starlette.sse import EventSourceResponse
-from uuid import uuid4
-import asyncio
-
 app = FastAPI()
 router = APIRouter()
-# router = APIRouter(prefix="/sse")
-
 
 async def print_request(request):
     print(f'request header       : {dict(request.headers.items())}' )
     print(f'request query params : {dict(request.query_params.items())}')  
     print(f'request path params  : {dict(request)}')
-    
-    
-    #try : 
-    #    print(f'request json         : {await request.json()}')
-    #except Exception as err:
-    #    print(f'request body         : {await request.body()}')
-        
+                
 async def generator(req: Request):
     await print_request(req)
     
@@ -2001,37 +1993,10 @@ async def sslSendMessage(req: Request) -> EventSourceResponse:
 
 app.include_router(router)
 
-"""
-async def sendMessage(id, body):
-    print("request: ", request)
-    
-    output = {
-        'request': request
-    }
-    
-    return EventSourceResponse(json.dumps(body))
-"""
-
-#async def get_users():
-#    return {"message": "Users!"}
-
-def sendMessage(body):
-    
+def sendMessage(body):    
     print('body: ', body)
     EventSourceResponse(body)
     
-    """
-    try:
-        client.post_to_connection(
-            ConnectionId=id, 
-            Data=json.dumps(body)
-        )
-    except Exception:
-        err_msg = traceback.format_exc()
-        print('err_msg: ', err_msg)
-        raise Exception ("Not able to send a message")
-    """
-
 def test():
     print('query', "안녕")
     
@@ -2071,44 +2036,3 @@ def lambda_handler(event, context):
     test()
     
     return response
-    
-    """
-    msg = ""
-    if event['requestContext']: 
-        connectionId = event['requestContext']['connectionId']        
-        routeKey = event['requestContext']['routeKey']
-        
-        if routeKey == '$connect':
-            print('connected!')
-        elif routeKey == '$disconnect':
-            print('disconnected!')
-        else:
-            body = event.get("body", "")
-            #print("data[0:8]: ", body[0:8])
-            if body[0:8] == "__ping__":
-                # print("keep alive!")                
-                sendMessage(connectionId, "__pong__")
-            else:
-                print('connectionId: ', connectionId)
-                print('routeKey: ', routeKey)
-        
-                jsonBody = json.loads(body)
-                print('request body: ', json.dumps(jsonBody))
-
-                requestId  = jsonBody['request_id']
-                try:
-                    msg, reference = getResponse(connectionId, jsonBody)
-
-                    print('msg+reference: ', msg+reference)
-                                        
-                except Exception:
-                    err_msg = traceback.format_exc()
-                    print('err_msg: ', err_msg)
-
-                    sendErrorMessage(connectionId, requestId, err_msg)    
-                    raise Exception ("Not able to send a message")
-    """
-
-    return {
-        'statusCode': 200
-    }
