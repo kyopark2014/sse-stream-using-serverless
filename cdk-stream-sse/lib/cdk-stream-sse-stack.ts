@@ -9,13 +9,14 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as apiGateway from 'aws-cdk-lib/aws-apigateway';
 import * as s3Deploy from "aws-cdk-lib/aws-s3-deployment";
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import * as opensearch from 'aws-cdk-lib/aws-opensearchservice';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import * as elasticache from 'aws-cdk-lib/aws-elasticache';
+import { Role, ManagedPolicy, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 
 const region = process.env.CDK_DEFAULT_REGION;    
 const accountId = process.env.CDK_DEFAULT_ACCOUNT
@@ -129,6 +130,63 @@ export class CdkStreamSseStack extends cdk.Stack {
       value: distribution.domainName,
       description: 'The domain name of the Distribution',
     });
+
+    const vpc = new ec2.Vpc(this, `vpc-for-${projectName}`, {
+      vpcName: `vpc-for-${projectName}`,
+      maxAzs: 1,
+      cidr: "10.64.0.0/24",
+      natGateways: 1,
+      createInternetGateway: true,
+      subnetConfiguration: [
+        {
+          name: `public-subnet-for-${projectName}`,
+          subnetType: ec2.SubnetType.PUBLIC
+        }, 
+        {
+          name: `private-subnet-for-${projectName}`,
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED
+        },
+      ],
+    });
+
+    const redisSubnetGroup = new elasticache.CfnSubnetGroup(
+      this,`redis-subnet-group-for-${projectName}`,
+      {
+        description: "Subnet group for the redis cluster",
+        subnetIds: vpc.publicSubnets.map((ps) => ps.subnetId),
+        cacheSubnetGroupName: `redis-subnet-group-${projectName}`,
+      }
+    );
+
+    const redisSecurityGroup = new ec2.SecurityGroup(this, `redis-sg-for-${projectName}`,
+      {
+        vpc: vpc,
+        allowAllOutbound: true,
+        description: "Security group for the redis cluster",
+        securityGroupName: `redis-sg-for-${projectName}`,
+      }
+    );
+
+    // Redis
+    const redisCache = new elasticache.CfnCacheCluster(this, `redis-for-${projectName}`, {
+      engine: 'redis',
+      cacheNodeType: 'cache.t3.small',
+      numCacheNodes: 1,
+      clusterName: `redis-for-${projectName}`,
+      vpcSecurityGroupIds: [redisSecurityGroup.securityGroupId],
+      cacheSubnetGroupName: redisSubnetGroup.ref,
+      engineVersion: "6.2",
+    });
+    
+    redisCache.addDependsOn(redisSubnetGroup);
+    new cdk.CfnOutput(this, `CacheEndpointUrl-for-${projectName}`, {
+      value: redisCache.attrRedisEndpointAddress,
+    });
+
+    new cdk.CfnOutput(this, `CachePort-for-${projectName}`, {
+      value: redisCache.attrRedisEndpointPort,
+    });
+
 
     // DynamoDB for call log
     const callLogTableName = `db-call-log-for-${projectName}`;
@@ -492,6 +550,16 @@ export class CdkStreamSseStack extends cdk.Stack {
     });
     tavilyApiSecret.grantRead(roleLambdaSSE) 
 
+    // For Redis
+    roleLambdaSSE.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonElastiCacheFullAccess")
+    );
+    roleLambdaSSE.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AWSLambdaENIManagementAccess"
+      )
+    );
+
     // lambda-chat using SSE    
     const lambdaChatSSE = new lambda.DockerImageFunction(this, `lambda-chat-sse-for-${projectName}`, {
       description: 'lambda for chat using SSE',
@@ -500,6 +568,7 @@ export class CdkStreamSseStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(300),
       memorySize: 8192,
       role: roleLambdaSSE,
+      vpc: vpc,  // for Redis
       environment: {
         s3_bucket: s3Bucket.bucketName,
         s3_prefix: s3_prefix,
@@ -510,7 +579,7 @@ export class CdkStreamSseStack extends cdk.Stack {
         opensearch_url: opensearch_url,
         path: "",   
       //  path: 'https://'+distribution.domainName+'/',   
-      debugMessageMode: debugMessageMode,
+        debugMessageMode: debugMessageMode,
         useParallelRAG: useParallelRAG,
         numberOfRelevantDocs: numberOfRelevantDocs,
         LLM_for_chat: JSON.stringify(claude3_sonnet_for_workshop),
@@ -656,6 +725,92 @@ export class CdkStreamSseStack extends cdk.Stack {
       ]
     });
     lambdaS3eventManager.addEventSource(s3PutEventSource);     
+
+    // Lambda - redis
+    const roleLambdaRedis = new iam.Role(this, `role-lambda-redis-for-${projectName}`, {
+      roleName: `role-lambda-redis-for-${projectName}-${region}`,
+      assumedBy: new iam.CompositePrincipal(
+        new iam.ServicePrincipal("lambda.amazonaws.com"),
+      )
+    });
+    roleLambdaRedis.addManagedPolicy({
+      managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+    });
+    roleLambdaRedis.attachInlinePolicy( 
+      new iam.Policy(this, `api-invoke-policy-of-redis-for-${projectName}`, {
+        statements: [apiInvokePolicy],
+      }),
+    );  
+
+    // For Redis
+    roleLambdaRedis.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("AmazonElastiCacheFullAccess")
+    );
+    roleLambdaRedis.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AWSLambdaENIManagementAccess"
+      )
+    );
+
+    const lambdaSG = new ec2.SecurityGroup(this, `lambda-sg-for-${projectName}`, {
+      description: `security group of lambda for ${projectName}`,      
+      vpc: vpc,
+      allowAllOutbound: true,
+      securityGroupName: `lambda-sg-for-${projectName}`,
+    });
+
+    lambdaSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.allTcp(), 'allow all access from the world');
+    // Peer.anyIpv4(), Peer.anyIpv6(), Peer.ipv4(), Peer.ipv6(), Peer.prefixList(), Peer.securityGroupId(), EndpointGroup.connectionsPeer(), ipv4('10.200.0.0/24')
+    // ec2.Port.tcp(80) allTcp(), allTraffic(), tcp(port), ec2.Port.tcp(5439)
+
+    lambdaSG.connections.allowTo(
+      redisSecurityGroup,
+      ec2.Port.tcp(6379),
+      "Allow this lambda function connect to the redis cache"
+    );
+    
+    // lambda - redis for voice  
+    const lambdaRedis = new lambda.DockerImageFunction(this, `lambda-redis-for-${projectName}`, {
+      description: 'lambda for redis',
+      functionName: `lambda-redis-for-${projectName}`,
+      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../../lambda-redis')),
+      timeout: cdk.Duration.seconds(300),
+      role: roleLambdaRedis,
+      vpc: vpc,  // for Redis
+      securityGroups: [lambdaSG],
+      environment: {
+        redisAddress: redisCache.attrRedisEndpointAddress,
+        redisPort: redisCache.attrRedisEndpointPort
+      }
+    });
+    
+    // POST method - redis
+    const redis_info = api.root.addResource("redis");
+    redis_info.addMethod('POST', new apiGateway.LambdaIntegration(lambdaRedis, {
+      passthroughBehavior: apiGateway.PassthroughBehavior.WHEN_NO_TEMPLATES,
+      credentialsRole: role,
+      integrationResponses: [{
+        statusCode: '200',
+      }], 
+      proxy:false, 
+    }), {
+      methodResponses: [  
+        {
+          statusCode: '200',
+          responseModels: {
+            'application/json': apiGateway.Model.EMPTY_MODEL,
+          }, 
+        }
+      ]
+    }); 
+
+    // cloudfront setting for redis api
+    distribution.addBehavior("/redis", new origins.RestApiOrigin(api), {
+      cachePolicy: cloudFront.CachePolicy.CACHING_DISABLED,
+      allowedMethods: cloudFront.AllowedMethods.ALLOW_ALL,  
+      viewerProtocolPolicy: cloudFront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    }); 
+
   }
 }
 

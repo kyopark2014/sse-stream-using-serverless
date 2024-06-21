@@ -13,6 +13,7 @@ from urllib import parse
 from botocore.config import Config
 from PIL import Image
 import requests
+import redis
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.memory import ConversationBufferWindowMemory
