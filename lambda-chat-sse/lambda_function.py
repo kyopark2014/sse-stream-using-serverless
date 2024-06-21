@@ -1660,7 +1660,7 @@ def run_agent_react_chat(connectionId, requestId, chat, query):
             
     return msg
     
-def getResponse(connectionId, jsonBody):
+def getResponse(jsonBody):
     userId  = jsonBody['user_id']
     # print('userId: ', userId)
     requestId  = jsonBody['request_id']
@@ -1739,7 +1739,7 @@ def getResponse(connectionId, jsonBody):
         msg += f"current model: {modelId}"
         print('model lists: ', msg)          
 
-        sendResultMessage(connectionId, requestId, msg)  
+        sendResultMessage(requestId, msg)  
     else:           
         text = body
         print('query: ', text)  
@@ -1774,18 +1774,18 @@ def getResponse(connectionId, jsonBody):
                 msg  = "The chat memory was intialized in this session."
             else:       
                 if conv_type == 'normal':      # normal
-                    msg = general_conversation(connectionId, requestId, chat, text)      
+                    msg = general_conversation(requestId, chat, text)      
                 elif conv_type == 'agent-react':
-                    msg = run_agent_react(connectionId, requestId, chat, text)                
+                    msg = run_agent_react(requestId, chat, text)                
                 elif conv_type == 'agent-react-chat':         
                     if separated_chat_history=='true': 
-                        msg = run_agent_react_chat_using_revised_question(connectionId, requestId, chat, text)
+                        msg = run_agent_react_chat_using_revised_question(requestId, chat, text)
                     else:
-                        msg = run_agent_react_chat(connectionId, requestId, chat, text)
+                        msg = run_agent_react_chat(requestId, chat, text)
                                         
                 elif conv_type == 'qa':   # RAG
                     print(f'rag_type: {rag_type}')
-                    msg, reference = get_answer_using_RAG(chat, text, conv_type, connectionId, requestId, bedrock_embedding)
+                    msg, reference = get_answer_using_RAG(chat, text, conv_type, requestId, bedrock_embedding)
                     
                 elif conv_type == 'translation':                    
                     msg = translate_text(chat, text)
@@ -1803,7 +1803,7 @@ def getResponse(connectionId, jsonBody):
                 memory_chain.chat_memory.add_ai_message(msg)
                         
         elif type == 'document':
-            isTyping(connectionId, requestId)
+            isTyping(requestId)
             
             object = body
             file_type = object[object.rfind('.')+1:len(object)]            
@@ -1898,7 +1898,7 @@ def getResponse(connectionId, jsonBody):
             else:
                 msg = "uploaded file: "+object
                                                         
-        sendResultMessage(connectionId, requestId, msg+reference)
+        sendResultMessage(requestId, msg+reference)
         # print('msg+reference: ', msg+reference)
 
         elapsed_time = time.time() - start
@@ -1940,7 +1940,7 @@ def getResponse(connectionId, jsonBody):
             statusMsg = statusMsg + f"{time_for_inference:.2f}(Inference), "
         statusMsg = statusMsg + f"{elapsed_time:.2f}(전체)"
             
-        sendResultMessage(connectionId, requestId, msg+reference+statusMsg)
+        sendResultMessage(requestId, msg+reference+statusMsg)
 
     return msg, reference
 
