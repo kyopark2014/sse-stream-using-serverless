@@ -114,6 +114,8 @@ def subscribe_redis(channel):
             # msg = msg[1:len(msg)-1]
             print('msg: ', msg)                        
             #deliveryVoiceMessage(msg)
+
+subscribe_redis('a1234')
             
 # google search api
 googleApiSecret = os.environ.get('googleApiSecret')
