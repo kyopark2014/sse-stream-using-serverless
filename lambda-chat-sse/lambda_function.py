@@ -87,19 +87,13 @@ print('redisAddress: ',redisAddress)
 redisPort = os.environ.get('redisPort')
 print('redisPort: ',redisPort)
     
-def initiate_redis():
-    try: 
-        client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
-        print('Redis was connected')
-        
-    except Exception:
-        err_msg = traceback.format_exc()
-        print('error message: ', err_msg)                    
-        raise Exception ("Not able to request to redis")        
-    
-    return client
-    
-redis_client = initiate_redis()
+
+try: 
+    redis_client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
+except Exception:
+    err_msg = traceback.format_exc()
+    print('error message: ', err_msg)                    
+    raise Exception ("Not able to request to LLM")
 
 
 def publishTest():
