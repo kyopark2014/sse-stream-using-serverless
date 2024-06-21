@@ -1995,7 +1995,7 @@ async def generator(req: Request):
     await asyncio.sleep(3)
                 
 @router.get("/chat")
-async def SSLsendMessage(req: Request) -> EventSourceResponse:    
+async def sslSendMessage(req: Request) -> EventSourceResponse:    
     #return {"message": "Hello World..."}    
     return EventSourceResponse(generator(req))
 
@@ -2018,6 +2018,7 @@ async def sendMessage(id, body):
 def sendMessage(body):
     
     print('body: ', body)
+    EventSourceResponse(body)
     
     """
     try:
@@ -2048,7 +2049,7 @@ def test():
     try:    
         msg, reference = getResponse(jsonBody)
         print('msg+reference: ', msg+reference)
-                                        
+        
     except Exception:
         err_msg = traceback.format_exc()
         print('err_msg: ', err_msg)
