@@ -1964,8 +1964,8 @@ async def print_request(request):
         print(f'request body         : {await request.body()}')
         
 async def generator(req: Request):
-    event_id = str(uuid4())
-    print('event_id: ', event_id)
+    sessionId = str(uuid4())
+    print('sessionId: ', sessionId)
     
     #while True:
     #    is_disconnected = await req.is_disconnected()
@@ -1975,15 +1975,17 @@ async def generator(req: Request):
         #for i in range(3):
         #    yield {
         #        "event": "init",
-        #        "id": event_id,
-        #        "data": {"event-id": event_id, "msg": i}
+        #        "id": sessionId,
+        #        "data": {"event-id": sessionId, "msg": i}
         #    }
         #await asyncio.sleep(1)
     
     output = {
         "event": "init",
-        "id": event_id,
-        "data": {"event-id": event_id, "msg": "nothing"}
+        "session-id": sessionId,
+        "data": {
+            "msg": ""
+        }
     }
     
     yield json.dumps(output)

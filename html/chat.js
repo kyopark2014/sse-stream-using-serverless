@@ -87,6 +87,7 @@ function sendMessage(message) {
     }     
 }
 
+let sessionId = ""
 function connect(endpoint) {
     const eventSource = new EventSource("/chat");
 
@@ -94,54 +95,59 @@ function connect(endpoint) {
     eventSource.onmessage = function (event) {        
         console.log('event(raw): ', event);
 
-        data = JSON.parse(event.data)
-        console.log('data: ', data);
-        
-        lastEventId = event.get('lastEventId');
+        lastEventId = event['lastEventId'];
         console.log('lastEventId: ', lastEventId);
 
-        if(response.request_id) {
-            if(!indexList.get(response.request_id+':receive')) { // the first received message
-                let current = new Date();
-                let elapsed = (current - sentTime.get(response.request_id))/1000;
-                // console.log('elapsed time: ', elapsed);
-            }
-            // console.log('response: ', response);
+        data = JSON.parse(event.data);
+        console.log('data: ', data);
 
-            if(response.status == 'completed') {          
-                feedback.style.display = 'none';          
-                console.log('received message: ', response.msg);                 
-                addReceivedMessage(response.request_id, response.msg);  
-            }                
-            else if(response.status == 'istyping') {
-                feedback.style.display = 'inline';
-                // feedback.innerHTML = '<i>typing a message...</i>'; 
-            }
-            else if(response.status == 'proceeding') {
-                feedback.style.display = 'none';
-                addReceivedMessage(response.request_id, response.msg);  
-            }                
-            else if(response.status == 'debug') {
-                feedback.style.display = 'none';
-                console.log('debug: ', response.msg);
-                // addNotifyMessage(response.msg);
-                addReceivedMessage(response.request_id, response.msg);  
-            }          
-            else if(response.status == 'error') {
-                feedback.style.display = 'none';
-                console.log('error: ', response.msg);
+        console.log('evnet: ', data['evnet']);
 
-                if(response.msg.indexOf('throttlingException') || response.msg.indexOf('Too many requests') || response.msg.indexOf('too many requests')) {
-                    addNotifyMessage('허용된 요청수를 초과하였습니다. 추후 다시 재도시도 해주세요.');  
-                }
-                else {
-                    addNotifyMessage(response.msg);
-                }
-            }   
+        if(data['event'] == 'init') {
+            sessionId = data['session-id'];
+            console.log('sessionId: ', sessionId);        
         }
         else {
-            console.log('system message: ', event.data);
-        }        
+            if(response.request_id) {
+                if(!indexList.get(response.request_id+':receive')) { // the first received message
+                    let current = new Date();
+                    let elapsed = (current - sentTime.get(response.request_id))/1000;
+                    // console.log('elapsed time: ', elapsed);
+                }
+                // console.log('response: ', response);
+
+                if(response.status == 'completed') {          
+                    feedback.style.display = 'none';          
+                    console.log('received message: ', response.msg);                 
+                    addReceivedMessage(response.request_id, response.msg);  
+                }                
+                else if(response.status == 'istyping') {
+                    feedback.style.display = 'inline';
+                    // feedback.innerHTML = '<i>typing a message...</i>'; 
+                }
+                else if(response.status == 'proceeding') {
+                    feedback.style.display = 'none';
+                    addReceivedMessage(response.request_id, response.msg);  
+                }                
+                else if(response.status == 'debug') {
+                    feedback.style.display = 'none';
+                    console.log('debug: ', response.msg);
+                    // addNotifyMessage(response.msg);
+                    addReceivedMessage(response.request_id, response.msg);  
+                }          
+                else if(response.status == 'error') {
+                    feedback.style.display = 'none';
+                    console.log('error: ', response.msg);
+
+                    if(response.msg.indexOf('throttlingException') || response.msg.indexOf('Too many requests') || response.msg.indexOf('too many requests')) {
+                        addNotifyMessage('허용된 요청수를 초과하였습니다. 추후 다시 재도시도 해주세요.');  
+                    }
+                    else {
+                        addNotifyMessage(response.msg);
+                    }
+                }   
+            }
+        }
     };
 
 
