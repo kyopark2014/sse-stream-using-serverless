@@ -2032,14 +2032,11 @@ def lambda_handler(event, context):
     
     handler = Mangum(app)    
     
-    """
     response = handler(
         event, context
     )  
     print('response', response)
-    """
     
-    """
     jsonBody = {
         'body': "안녕",
         'conv_type': "normal",
@@ -2061,7 +2058,6 @@ def lambda_handler(event, context):
 
         # sendErrorMessage(connectionId, requestId, err_msg)    
         raise Exception ("Not able to send a message")
-    """
     
     return response
     
