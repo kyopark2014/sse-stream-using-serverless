@@ -101,6 +101,7 @@ def initiate_redis():
     
 redis_client = initiate_redis()
 
+"""
 def publishTest():
     sessionId = 'a1234'
     msg = {
@@ -123,7 +124,7 @@ def publishTest():
         raise Exception ("Not able to request to redis")
 
 publishTest()
-        
+"""        
 
 def subscribe_redis(channel):    
     pubsub = redis_client.pubsub()
@@ -137,9 +138,10 @@ def subscribe_redis(channel):
             msg = message['data'].encode('utf-8').decode('unicode_escape')
             # msg = msg[1:len(msg)-1]
             print('msg: ', msg)                        
+        
             #deliveryVoiceMessage(msg)
 
-subscribe_redis('a1234')
+#subscribe_redis('a1234')
             
 # google search api
 googleApiSecret = os.environ.get('googleApiSecret')

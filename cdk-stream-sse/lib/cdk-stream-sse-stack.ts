@@ -718,7 +718,6 @@ export class CdkStreamSseStack extends cdk.Stack {
           opensearch_account: opensearch_account,
           opensearch_passwd: opensearch_passwd,
           opensearch_url: opensearch_url,
-          roleArn: roleLambdaSSE.roleArn,
           path: "", 
           // path: 'https://'+distribution.domainName+'/', 
           sqsUrl: queueUrl[i],
