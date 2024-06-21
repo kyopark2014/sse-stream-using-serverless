@@ -1959,6 +1959,8 @@ async def print_request(request):
     print(f'request header       : {dict(request.headers.items())}' )
     print(f'request query params : {dict(request.query_params.items())}')  
     print(f'request path params  : {dict(request)}')
+    
+    
     #try : 
     #    print(f'request json         : {await request.json()}')
     #except Exception as err:
@@ -1966,6 +1968,12 @@ async def print_request(request):
         
 async def generator(req: Request):
     await print_request(req)
+    
+    event = req['aws.event']
+    print('event: ', event)
+    
+    body = event['body']
+    print('body: ', body)
     
     sessionId = str(uuid4())
     print('sessionId: ', sessionId)
@@ -1990,19 +1998,6 @@ async def generator(req: Request):
 async def sendMessage(req: Request) -> EventSourceResponse:    
     #return {"message": "Hello World..."}    
     return EventSourceResponse(generator(req))
-
-
-#@app.get("/chat")
-
-"""
-async def root() -> dict:
-  return {"message": "Hello World"}
-"""
-
-"""
-async def chat(request: Request) -> EventSourceResponse:
-    return EventSourceResponse(sendMessage(request.client.host, request.query_params))
-"""
 
 app.include_router(router)
 
