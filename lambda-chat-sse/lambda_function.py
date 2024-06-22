@@ -2076,17 +2076,22 @@ async def generator(req: Request):
     # subscribe sessionId
     subscribe_sessionId_using_thread(sessionId)
     
-    # sent session info to the client     
-    output = {
-        "type": "init",
-        "session-id": sessionId,
-        "data": {
-            "msg": ""
-        }
-    }    
-    yield json.dumps(output)    
-    await asyncio.sleep(30)
+    while True:
+        is_disconnected = await req.is_disconnected()
+        if is_disconnected:
+            break
         
+        # sent session info to the client     
+        output = {
+            "type": "init",
+            "session-id": sessionId,
+            "data": {
+                "msg": ""
+            }
+        }    
+        yield json.dumps(output)    
+        await asyncio.sleep(1)
+            
     # publish_sessionId(sessionId, userId)
         
     #while True:
