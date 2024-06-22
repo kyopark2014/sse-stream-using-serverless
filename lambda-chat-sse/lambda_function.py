@@ -13,7 +13,7 @@ from urllib import parse
 from botocore.config import Config
 from PIL import Image
 import requests
-import redis.asyncio as redis
+import redis
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.memory import ConversationBufferWindowMemory
@@ -86,18 +86,13 @@ redisAddress = os.environ.get('redisAddress')
 print('redisAddress: ',redisAddress)
 redisPort = os.environ.get('redisPort')
 print('redisPort: ',redisPort)
-
-
     
-async def initiate_redis():
+def initiate_redis():
     try: 
-        #client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
-        #client = redis.Redis(host=redisAddress, port=redisPort, db=0, decode_responses=True)   
-        client = redis.from_url(f"redis://{redisAddress}") 
-        # print('Redis was connected')
+        client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
+        print('Redis was connected')
         
-        print(f"Ping successful: {await client.ping()}")
-        # await client.aclose()
+        print(f"Ping successful: {client.ping()}")
         
     except Exception:
         err_msg = traceback.format_exc()
@@ -133,29 +128,7 @@ def publishTest():
 publishTest()
 """        
 
-"""
-STOPWORD = "STOP"
-async def reader(channel: redis.client.PubSub):
-    while True:
-        message = await channel.get_message(ignore_subscribe_messages=True)
-        if message is not None:
-            print(f"(Reader) Message Received: {message}")
-            if message["data"].decode() == STOPWORD:
-                print("(Reader) STOP")
-                break
-"""
-            
-async def subscribe_redis(channel):    
-    """
-    async with redis_client.pubsub() as pubsub:
-        await pubsub.subscribe(channel)
-        
-        future = asyncio.create_task(reader(pubsub))
-        print('future: ', future)
-        
-        await future
-    """
-    
+def subscribe_redis(channel):    
     pubsub = redis_client.pubsub()
     pubsub.subscribe(channel)
     print('successfully subscribed for channel: ', channel)    
@@ -169,7 +142,7 @@ async def subscribe_redis(channel):
             print('msg: ', msg)                        
         
             #deliveryVoiceMessage(msg)
-    
+
 #subscribe_redis('a1234')
             
 # google search api
@@ -236,6 +209,11 @@ except Exception as e:
 
 if tavily_api_key:
     os.environ["TAVILY_API_KEY"] = tavily_api_key
+
+# websocket
+connection_url = os.environ.get('connection_url')
+client = boto3.client('apigatewaymanagementapi', endpoint_url=connection_url)
+print('connection_url: ', connection_url)
 
 HUMAN_PROMPT = "\n\nHuman:"
 AI_PROMPT = "\n\nAssistant:"
@@ -2055,10 +2033,10 @@ async def generator(req: Request):
     print('body: ', body)
     
     sessionId = str(uuid4())
-    #print('sessionId: ', sessionId)
+    print('sessionId: ', sessionId)
     
     # subscribe sessionId
-    #await subscribe_redis(sessionId)
+    subscribe_redis(sessionId)
     
     #while True:
     #    is_disconnected = await req.is_disconnected()
