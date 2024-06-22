@@ -2051,7 +2051,12 @@ async def event_generator(req: Request):
     await asyncio.sleep(1)
     
     cnt = 0
-    while True:
+    #while True:
+    for i in range(3):
+        if await req.is_disconnected():
+            print('Client disconnected')
+            break
+        
         cnt = cnt + 1
         
         output = {
@@ -2063,7 +2068,7 @@ async def event_generator(req: Request):
         }    
         print('output: ', output)
         yield json.dumps(output)
-        await asyncio.sleep(1)
+        await asyncio.sleep(3)
             
 app = FastAPI()
 router = APIRouter()
