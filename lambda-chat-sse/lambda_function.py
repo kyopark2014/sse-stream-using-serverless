@@ -89,7 +89,9 @@ print('redisPort: ',redisPort)
     
 def initiate_redis():
     try: 
-        client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
+        #client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
+        #client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)   
+        client = redis.from_url(f"redis://{redisAddress}") 
         print('Redis was connected')
         
         print(f"Ping successful: {client.ping()}")
