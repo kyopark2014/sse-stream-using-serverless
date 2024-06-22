@@ -77,6 +77,58 @@ ASGI(Asynchronous Server Gateway Interface)
 - SSE의 경우에 API Gateway은 미지원하므로, ALB/NLB를 적용해야 할 것으로 보여집니다.
 
 
+### SSE 방식에 대한 검토
+
+[Stream Responses from OpenAI API with Python: A Step-by-Step Guide](https://www.codingthesmartway.com/stream-responses-from-openai-api-with-python/)와 같이 OpenAPI의 인터페이스는 HTTP Post로 질문을 보내고 Answer를 SSE로 받는 구조입니다.
+
+```python
+def performRequestWithStreaming():
+    reqUrl = 'https://api.openai.com/v1/completions'
+    reqHeaders = {
+        'Accept': 'text/event-stream',
+        'Authorization': 'Bearer ' + API_KEY
+    }
+    reqBody = {
+      "model": "text-davinci-003",
+      "prompt": "What is Python?",
+      "max_tokens": 100,
+      "temperature": 0,
+      "stream": True,
+    }
+    request = requests.post(reqUrl, stream=True, headers=reqHeaders, json=reqBody)
+    client = sseclient.SSEClient(request)
+    for event in client.events():
+        if event.data != '[DONE]':
+            print(json.loads(event.data)['choices'][0]['text'], end="", flush=True),
+```
+
+LangChain의 경우에는 invoke()하면 stream으로 content를 받는 방식입니다. 
+
+```python
+def general_conversation(requestId, chat, query):
+    system = (
+            "다음의 Human과 Assistant의 친근한 이전 대화입니다. Assistant은 상황에 맞는 구체적인 세부 정보를 충분히 제공합니다. Assistant의 이름은 서연이고, 모르는 질문을 받으면 솔직히 모른다고 말합니다."
+        )    
+    human = "{input}"    
+    prompt = ChatPromptTemplate.from_messages([("system", system), MessagesPlaceholder(variable_name="history"), ("human", human)])    
+    history = memory_chain.load_memory_variables({})["chat_history"]
+                
+    chain = prompt | chat    
+    try: 
+        isTyping(requestId)  
+        stream = chain.invoke(
+            {
+                "history": history,
+                "input": query,
+            }
+        )        
+        for event in stream.content:
+            print('event', event)
+```
+
+따라서, LangChain을 쓰면서 SSE 방식으로 Web Interface를 쓰려는것은 Layer가 다르다고 보여집니다. 
+
+
 ## Reference 
 
 
@@ -113,6 +165,4 @@ ASGI(Asynchronous Server Gateway Interface)
 
 [Sever Sent Event(SSE) 사용하기](https://blog.naver.com/pjt3591oo/223274970013)
 
-
-[Stream Responses from OpenAI API with Python: A Step-by-Step Guide](https://www.codingthesmartway.com/stream-responses-from-openai-api-with-python/)
 
