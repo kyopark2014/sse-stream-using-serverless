@@ -2020,6 +2020,9 @@ def getResponse(jsonBody):
 
     return msg, reference
 
+def new_messages():
+        # Add logic here to check for new messages
+        return 'Hello World'
 
 async def print_request(request):
     print(f'request header       : {dict(request.headers.items())}' )
@@ -2028,7 +2031,7 @@ async def print_request(request):
          
 channel_id = ""       
 async def generator(req: Request):
-    await print_request(req)
+    # await print_request(req)
     
     event = req['aws.event']
     print('event: ', event)
@@ -2041,7 +2044,7 @@ async def generator(req: Request):
         "type": "init",
         "session-id": sessionId,
         "data": {
-            "msg": ""
+            "msg": new_messages()
         }
     }    
     yield json.dumps(output)
@@ -2069,60 +2072,10 @@ async def generator(req: Request):
 app = FastAPI()
 router = APIRouter()
 
-#@router.get("/chat")
-#async def sslSendMessage(req: Request) -> EventSourceResponse:    
-#    #return {"message": "Hello World..."}    
-#    return EventSourceResponse(generator(req))
-
-STREAM_DELAY = 3  # second
-RETRY_TIMEOUT = 15000  # milisecond
-
 @router.get("/chat")
-async def message_stream(request: Request):
-    #await print_request(request)
-    
-    event = request['aws.event']
-    print('event: ', event)
-    
-    body = event['body']
-    print('body: ', body)
-    
-    def new_messages():
-        # Add logic here to check for new messages
-        return 'Hello World'
-    async def event_generator():
-        while True:
-            # If client closes connection, stop sending events
-            if await request.is_disconnected():
-                break
-
-            print('new_messages: ', new_messages())
-            
-             # sent session info to the client     
-            output = {
-                "type": "message",
-                "session-id": sessionId,
-                "data": {
-                    "msg": new_messages()
-                }
-            }    
-            yield json.dumps(output)
-            await asyncio.sleep(3)
-                    
-            """
-            # Checks for new messages and return them to client if any
-            if new_messages():
-                yield json.dumps({
-                        "event": "new_message",
-                        "id": "message_id",
-                        "retry": RETRY_TIMEOUT,
-                        "data": "message_content"
-                })
-
-            await asyncio.sleep(STREAM_DELAY)
-            """
-
-    return EventSourceResponse(event_generator())
+async def sslSendMessage(req: Request) -> EventSourceResponse:    
+    #return {"message": "Hello World..."}    
+    return EventSourceResponse(generator(req))
 
 app.include_router(router)
 
