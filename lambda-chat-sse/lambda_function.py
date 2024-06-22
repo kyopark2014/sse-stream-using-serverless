@@ -132,7 +132,29 @@ def subscribe_redis(channel):
     pubsub = redis_client.pubsub()
     pubsub.subscribe(channel)
     print('successfully subscribed for channel: ', channel)    
-            
+         
+    userId = ""
+    for message in pubsub.listen():
+        print('message: ', message)
+                
+        if message['data'] != 1:            
+            msg = message['data'].encode('utf-8').decode('unicode_escape')
+            # msg = msg[1:len(msg)-1]
+            print('msg: ', msg)
+                            
+                #pubsub = redis_client.pubsub()
+                #pubsub.subscribe(msg['user-id'])
+                #print('start subscribing the channel: ', msg['user-id'])
+        
+            #deliveryVoiceMessage(msg)
+    return userId
+
+def subscribe_sessionId(channel):    
+    pubsub = redis_client.pubsub()
+    pubsub.subscribe(channel)
+    print('successfully subscribed for channel: ', channel)    
+         
+    userId = ""
     for message in pubsub.listen():
         print('message: ', message)
                 
@@ -142,13 +164,14 @@ def subscribe_redis(channel):
             print('msg: ', msg)
             
             if msg['type'] == 'init':
-                print('userId: ', msg['user-id'])
-                
-                pubsub = redis_client.pubsub()
-                pubsub.subscribe(msg['user-id'])
-                print('start subscribing the channel: ', msg['user-id'])
-        
-            #deliveryVoiceMessage(msg)
+                userId = msg['user-id']                
+                print('userId: ', userId)
+
+                break
+    
+    pubsub.close()
+
+    return userId
 
 #subscribe_redis('a1234')
             
@@ -2038,7 +2061,8 @@ async def generator(req: Request):
     print('sessionId: ', sessionId)
     
     # subscribe sessionId
-    subscribe_redis(sessionId)
+    userId = subscribe_sessionId(sessionId)
+    subscribe_redis(userId)
     
     #while True:
     #    is_disconnected = await req.is_disconnected()
