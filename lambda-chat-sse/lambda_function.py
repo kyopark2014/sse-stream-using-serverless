@@ -2033,7 +2033,6 @@ def new_messages():
     # Add logic here to check for new messages
     yield 'Hello World'
 
-previous = ""                 
 async def event_generator(req: Request):
     # await print_request(req)
     print('sessionId: ', sessionId)
@@ -2047,6 +2046,9 @@ async def event_generator(req: Request):
     # sent session info to the client     
     cnt = 0
     #while True:
+    
+    previous = ""
+    
     for i in range(3):
         if await req.is_disconnected():
             print('Client disconnected')
