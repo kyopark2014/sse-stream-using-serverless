@@ -2020,8 +2020,6 @@ def getResponse(jsonBody):
 
     return msg, reference
 
-app = FastAPI()
-router = APIRouter()
 
 async def print_request(request):
     print(f'request header       : {dict(request.headers.items())}' )
@@ -2054,6 +2052,9 @@ async def generator(req: Request):
     yield json.dumps(output)
     await asyncio.sleep(3)
                             
+app = FastAPI()
+router = APIRouter()
+
 @router.get("/chat")
 async def sslSendMessage(req: Request) -> EventSourceResponse:    
     #return {"message": "Hello World..."}    
@@ -2107,7 +2108,7 @@ def lambda_handler(event, context):
     print('response', response)
     
     # subscribe sessionId
-    subscribe_redis_using_thread()
+    # subscribe_redis_using_thread()
         
     
     
