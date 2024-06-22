@@ -2075,12 +2075,16 @@ async def generator(req: Request):
     
     # subscribe sessionId
     subscribe_sessionId_using_thread(sessionId)
-    
-    while True:
-        is_disconnected = await req.is_disconnected()
-        if is_disconnected:
-            break
         
+    #while True:
+    #    is_disconnected = await req.is_disconnected()
+    #    if is_disconnected:
+    #        break
+        
+    if channel_id:
+        print('channel_id: ', channel_id)
+        subscribe_userId_using_thread(channel_id)
+    else:
         # sent session info to the client     
         output = {
             "type": "init",
@@ -2091,20 +2095,7 @@ async def generator(req: Request):
         }    
         yield json.dumps(output)    
         await asyncio.sleep(1)
-            
-    # publish_sessionId(sessionId, userId)
-        
-    #while True:
-    #    is_disconnected = await req.is_disconnected()
-    #    if is_disconnected:
-    #        break
-        
-    
-    #if channel_id:
-    #    print('channel_id: ', channel_id)
-    #    subscribe_userId_using_thread(channel_id)
-    
-                
+                            
 @router.get("/chat")
 async def sslSendMessage(req: Request) -> EventSourceResponse:    
     #return {"message": "Hello World..."}    
