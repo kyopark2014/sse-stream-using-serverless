@@ -2094,8 +2094,8 @@ def test():
 def lambda_handler(event, context):
     global sessionId
     
-    #print('event: ', event)
-    #print('context: ', context)
+    print('event: ', event)
+    print('context: ', context)
     
     sessionId = str(uuid4())
     print('sessionId: ', sessionId)
@@ -2110,8 +2110,6 @@ def lambda_handler(event, context):
     # subscribe sessionId
     # subscribe_redis_using_thread()
         
-    
-    
     # test()
     
     return response
