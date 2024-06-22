@@ -2026,17 +2026,26 @@ async def print_request(request):
     print(f'request query params : {dict(request.query_params.items())}')  
     print(f'request path params  : {dict(request)}')
          
-channel_id = ""       
-async def generator(req: Request):
-    await print_request(req)
+channel_id = ""      
+
+ 
+async def event_generator2():
+        
+    #await print_request(req)
     
-    event = req['aws.event']
-    print('event: ', event)
+    #event = req['aws.event']
+    #print('event: ', event)
     
-    body = event['body']
-    print('body: ', body)
+    #body = event['body']
+    #print('body: ', body)
     
     # sent session info to the client     
+    while True:
+        is_disconnected = await req.is_disconnected()
+        if is_disconnected:
+            break
+    
+    
     output = {
         "type": "init",
         "session-id": sessionId,
@@ -2049,10 +2058,6 @@ async def generator(req: Request):
             
     """
     cnt = 0
-    while True:
-        is_disconnected = await req.is_disconnected()
-        if is_disconnected:
-            break
         
         # sent session info to the client             
         output = {
@@ -2069,10 +2074,34 @@ async def generator(req: Request):
 app = FastAPI()
 router = APIRouter()
 
+STREAM_DELAY = 1  # second
+RETRY_TIMEOUT = 15000  # milisecond
+
 @router.get("/chat")
-async def sslSendMessage(req: Request) -> EventSourceResponse:    
+async def message_stream(request: Request) -> EventSourceResponse:    
     #return {"message": "Hello World..."}    
-    return EventSourceResponse(generator(req))
+    def new_messages():
+        # Add logic here to check for new messages
+        yield 'Hello World'
+    
+    async def event_generator():
+        while True:
+            # If client closes connection, stop sending events
+            if await request.is_disconnected():
+                break
+
+            # Checks for new messages and return them to client if any
+            if new_messages():
+                yield {
+                        "event": "new_message",
+                        "id": "message_id",
+                        "retry": RETRY_TIMEOUT,
+                        "data": "message_content"
+                }
+
+            await asyncio.sleep(STREAM_DELAY)
+            
+    return EventSourceResponse(event_generator())
 
 app.include_router(router)
 
