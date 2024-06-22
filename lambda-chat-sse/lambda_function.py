@@ -2032,7 +2032,8 @@ async def print_request(request):
 def new_messages():
     # Add logic here to check for new messages
     yield 'Hello World'
-                 
+
+previous = ""                 
 async def event_generator(req: Request):
     # await print_request(req)
     print('sessionId: ', sessionId)
@@ -2050,9 +2051,8 @@ async def event_generator(req: Request):
         if await req.is_disconnected():
             print('Client disconnected')
             break
-        
-        cnt = cnt + 1
-        
+                
+        cnt = cnt + 1        
         output = {
             "cnt": f"{cnt}",
             "type": "message",
@@ -2061,8 +2061,12 @@ async def event_generator(req: Request):
             }
         }    
         print('output: ', output)
-        yield json.dumps(output)
-        await asyncio.sleep(5)
+        
+        if output != previous:
+            yield json.dumps(output)
+            await asyncio.sleep(3)
+        
+            previous = output
             
 app = FastAPI()
 router = APIRouter()
