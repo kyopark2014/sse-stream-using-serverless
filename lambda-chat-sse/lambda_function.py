@@ -2059,7 +2059,7 @@ async def generator(req: Request):
     print('sessionId: ', sessionId)
     
     # subscribe sessionId
-    subscribe_redis(sessionId)
+    await subscribe_redis(sessionId)
     
     #while True:
     #    is_disconnected = await req.is_disconnected()
