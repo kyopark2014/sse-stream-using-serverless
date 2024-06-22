@@ -1,6 +1,13 @@
 # SSE를 이용한 Streaming Chatbot
 
 
+## 구현 이슈
+
+30초 Timeout: API Gateway일 수 있음.
+
+![image](https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/ebf249f9-99f8-4fc3-9ae3-71245d05d040)
+
+
 ## Architecture 
 
 전체적인 Architecture는 아래와 같습니다.
