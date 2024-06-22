@@ -2049,7 +2049,7 @@ async def generator(req: Request):
     }    
     print('output: ', output)
     yield json.dumps(output)
-    await asyncio.sleep(3)
+    await asyncio.sleep(1)
     
     for cnt in range(10):
         output = {
@@ -2060,7 +2060,7 @@ async def generator(req: Request):
         }    
         print('output: ', output)
         yield json.dumps(output)
-        await asyncio.sleep(3)
+        await asyncio.sleep(1)
             
     """
     cnt = 0
