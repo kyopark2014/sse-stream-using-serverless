@@ -2039,16 +2039,18 @@ async def generator(req: Request):
     body = event['body']
     print('body: ', body)
     
+    
     # sent session info to the client     
-    output = {
-        "type": "init",
-        "session-id": sessionId,
-        "data": {
-            "msg": new_messages()
-        }
-    }    
-    yield json.dumps(output)
-    await asyncio.sleep(3)
+    while True:
+        output = {
+            "type": "init",
+            "session-id": sessionId,
+            "data": {
+                "msg": new_messages()
+            }
+        }    
+        yield json.dumps(output)
+        await asyncio.sleep(3)
             
     """
     cnt = 0
