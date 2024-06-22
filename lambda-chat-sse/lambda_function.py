@@ -2035,12 +2035,7 @@ async def generator(req: Request):
     
     body = event['body']
     print('body: ', body)
-            
-    #while True:
-    ##    is_disconnected = await req.is_disconnected()
-    #    if is_disconnected:
-    #        break
-        
+    
     # sent session info to the client     
     output = {
         "type": "init",
@@ -2051,7 +2046,25 @@ async def generator(req: Request):
     }    
     yield json.dumps(output)
     await asyncio.sleep(3)
-                            
+            
+    cnt = 0
+    while True:
+        is_disconnected = await req.is_disconnected()
+        if is_disconnected:
+            break
+        
+        # sent session info to the client             
+        output = {
+            "type": "msg",
+            "data": {
+                "msg": f"count: {cnt}"
+            }
+        }    
+        yield json.dumps(output)
+        await asyncio.sleep(3)
+        
+        cnt = cnt + 1
+                                
 app = FastAPI()
 router = APIRouter()
 
@@ -2094,8 +2107,8 @@ def test():
 def lambda_handler(event, context):
     global sessionId
     
-    print('event: ', event)
-    print('context: ', context)
+    #print('event: ', event)
+    #print('context: ', context)
     
     sessionId = str(uuid4())
     print('sessionId: ', sessionId)
