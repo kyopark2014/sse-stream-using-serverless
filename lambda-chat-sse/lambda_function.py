@@ -103,7 +103,7 @@ def initiate_redis():
     
 redis_client = initiate_redis()
 
-def publish_sessionId(sessionId, userId):
+def publish_message(sessionId, userId):
     msg = {
         'type': 'init',
         'session-id': sessionId,
@@ -123,70 +123,38 @@ def publish_sessionId(sessionId, userId):
         print('error message: ', err_msg)                    
         raise Exception ("Not able to request to redis")
 
-
-def subscribe_userId_using_thread(channel):
-    parent_conn, child_conn = Pipe()
-    process = Process(target=subscribe_userId, args=(child_conn, channel))
-    process.start()
-    
-    msg = parent_conn.recv()
-    print('msg: ', msg)
-    process.join()
-    
-def subscribe_userId(conn, channel):    
-    pubsub = redis_client.pubsub()
-    pubsub.subscribe(channel)
-    print('successfully subscribed for channel: ', channel)    
-         
-    for message in pubsub.listen():
-        print('message: ', message)
-                
-        if message['data'] != 1:            
-            msg = message['data'].encode('utf-8').decode('unicode_escape')
-            # msg = msg[1:len(msg)-1]
-            print('msg: ', msg)                                        
-            #deliveryVoiceMessage(msg)
-            
-    conn.send(msg)
-    conn.close()
-
-def subscribe_sessionId_using_thread(channel):
-    global channel_id
+def subscribe_redis_using_thread():
+    channel = sessionId
     
     parent_conn, child_conn = Pipe()
-    process = Process(target=subscribe_sessionId, args=(child_conn, channel))
+    process = Process(target=subscribe_redis, args=(child_conn, channel))
     process.start()
     
-    channel_id = parent_conn.recv()
+    question = parent_conn.recv()
     process.join()
     
-    print('channel_id: ', channel_id)
+    print('question: ', question)
+
+question = ""    
+def subscribe_redis(conn, channel):
+    global question
     
-def subscribe_sessionId(conn, channel):    
     pubsub = redis_client.pubsub()
     pubsub.subscribe(channel)
-    print('successfully subscribed for channel: ', channel)    
+    print('successfully subscribed for channel: ', channel)
          
-    userId = ""
     for message in pubsub.listen():
         print('message: ', message)
                 
         if message['data'] != 1:            
             data = message['data'].encode('utf-8').decode('unicode_escape')
             
-            msg = json.loads(data)                        
-            if msg['type'] == 'init':
-                userId = msg['user-id']                
-                # print('userId: ', userId)                
-                break                
-            
-    pubsub.close()
+            question = json.loads(data)                        
+            print('--> question: ', question)
 
-    conn.send(userId)
+    conn.send(question)
     conn.close()
 
-#subscribe_redis('a1234')
-            
 # google search api
 googleApiSecret = os.environ.get('googleApiSecret')
 secretsmanager = boto3.client('secretsmanager')
@@ -2069,22 +2037,12 @@ async def generator(req: Request):
     
     body = event['body']
     print('body: ', body)
-    
-    sessionId = str(uuid4())
-    print('sessionId: ', sessionId)
-    
-    # subscribe sessionId
-    subscribe_sessionId_using_thread(sessionId)
+            
+    while True:
+        is_disconnected = await req.is_disconnected()
+        if is_disconnected:
+            break
         
-    #while True:
-    #    is_disconnected = await req.is_disconnected()
-    #    if is_disconnected:
-    #        break
-        
-    if channel_id:
-        print('channel_id: ', channel_id)
-        subscribe_userId_using_thread(channel_id)
-    else:
         # sent session info to the client     
         output = {
             "type": "init",
@@ -2093,8 +2051,8 @@ async def generator(req: Request):
                 "msg": ""
             }
         }    
-        yield json.dumps(output)    
-        await asyncio.sleep(1)
+        yield json.dumps(output)
+        await asyncio.sleep(3)
                             
 @router.get("/chat")
 async def sslSendMessage(req: Request) -> EventSourceResponse:    
@@ -2133,9 +2091,17 @@ def test():
         raise Exception ("Not able to send a message")
     
 def lambda_handler(event, context):
-    print('event: ', event)
-    print('context: ', context)
+    global sessionId
     
+    #print('event: ', event)
+    #print('context: ', context)
+    
+    sessionId = str(uuid4())
+    print('sessionId: ', sessionId)
+    
+    # subscribe sessionId
+    subscribe_redis_using_thread()
+        
     handler = Mangum(app)    
     
     response = handler(
