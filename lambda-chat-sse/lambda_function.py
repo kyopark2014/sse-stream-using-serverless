@@ -2097,16 +2097,30 @@ async def message_stream(request: Request):
                 break
 
             print('new_messages: ', new_messages())
+            
+             # sent session info to the client     
+            output = {
+                "type": "message",
+                "session-id": sessionId,
+                "data": {
+                    "msg": new_messages()
+                }
+            }    
+            yield json.dumps(output)
+            await asyncio.sleep(3)
+                    
+            """
             # Checks for new messages and return them to client if any
             if new_messages():
-                return json.dumps({
-                    "event": "new_message",
-                    "id": "message_id",
-                    "retry": RETRY_TIMEOUT,
-                    "data": "message_content"
+                yield json.dumps({
+                        "event": "new_message",
+                        "id": "message_id",
+                        "retry": RETRY_TIMEOUT,
+                        "data": "message_content"
                 })
 
-            #await asyncio.sleep(STREAM_DELAY)
+            await asyncio.sleep(STREAM_DELAY)
+            """
 
     return EventSourceResponse(event_generator())
 
