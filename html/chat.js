@@ -742,7 +742,7 @@ function requestToRedis(message) {
     
     console.log("request: " + message);
 
-    var blob = new Blob(message, {type: 'application/json'});
+    var blob = new Blob([message], {type: 'application/json'});
 
     xhr.send(blob);            
 }
