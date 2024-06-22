@@ -143,7 +143,17 @@ def subscribe_redis(channel):
                                         
             #deliveryVoiceMessage(msg)
 
-def subscribe_sessionId(channel):    
+def subscribe_using_thread(channel):
+    parent_conn, child_conn = Pipe()
+    process = Process(target=subscribe_sessionId, args=(child_conn, channel))
+    process.start()
+    
+    userId = parent_conn.recv()
+    process.join()
+    
+    print('userId: ', userId)
+    
+def subscribe_sessionId(conn, channel):    
     pubsub = redis_client.pubsub()
     pubsub.subscribe(channel)
     print('successfully subscribed for channel: ', channel)    
@@ -162,7 +172,10 @@ def subscribe_sessionId(channel):
                 break                
             
     pubsub.close()
-    return userId
+    #return userId
+
+    conn.send(userId)
+    conn.close()
 
 #subscribe_redis('a1234')
             
@@ -2052,10 +2065,11 @@ async def generator(req: Request):
     print('sessionId: ', sessionId)
     
     # subscribe sessionId
-    userId = subscribe_sessionId(sessionId)
+    subscribe_using_thread(sessionId)
+    #userId = subscribe_sessionId(sessionId)
     
-    print('userId: ', userId)
-    subscribe_redis(userId)
+    #print('userId: ', userId)
+    #subscribe_redis(userId)
     
     #while True:
     #    is_disconnected = await req.is_disconnected()
