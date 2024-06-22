@@ -2041,7 +2041,8 @@ async def event_generator(req: Request):
     # sent session info to the client     
     cnt = 0
     #while True:
-    for i in range(3):
+    while True:
+    #for i in range(3):
         if await req.is_disconnected():
             print('Client disconnected')
             break
