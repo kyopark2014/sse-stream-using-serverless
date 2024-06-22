@@ -131,7 +131,7 @@ publishTest()
 
 async def subscribe_redis(channel):    
     pubsub = redis_client.pubsub()
-    await pubsub.subscribe(channel)
+    pubsub.subscribe(channel)
     print('successfully subscribed for channel: ', channel)    
             
     for message in pubsub.listen():
