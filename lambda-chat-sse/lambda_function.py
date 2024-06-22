@@ -2029,8 +2029,7 @@ async def print_request(request):
     print(f'request query params : {dict(request.query_params.items())}')  
     print(f'request path params  : {dict(request)}')
          
-channel_id = ""       
-async def generator(req: Request):
+async def event_generator(req: Request):
     # await print_request(req)
     
     event = req['aws.event']
@@ -2051,8 +2050,12 @@ async def generator(req: Request):
     yield json.dumps(output)
     await asyncio.sleep(1)
     
-    for cnt in range(10):
+    cnt = 0
+    while True:
+        cnt = cnt + 1
+        
         output = {
+            "cnt": f"{cnt}",
             "type": "message",
             "data": {
                 "msg": f"count: {cnt}"
@@ -2062,32 +2065,13 @@ async def generator(req: Request):
         yield json.dumps(output)
         await asyncio.sleep(1)
             
-    """
-    cnt = 0
-    while True:
-        is_disconnected = await req.is_disconnected()
-        if is_disconnected:
-            break
-        
-        # sent session info to the client             
-        output = {
-            "type": "msg",
-            "data": {
-                "msg": f"count: {cnt}"
-            }
-        }    
-        yield json.dumps(output)
-        await asyncio.sleep(3)
-        
-        cnt = cnt + 1
-    """                            
 app = FastAPI()
 router = APIRouter()
 
 @router.get("/chat")
-async def sslSendMessage(req: Request) -> EventSourceResponse:    
+async def message_stream(req: Request) -> EventSourceResponse:    
     #return {"message": "Hello World..."}    
-    return EventSourceResponse(generator(req))
+    return EventSourceResponse(event_generator(req))
 
 app.include_router(router)
 
