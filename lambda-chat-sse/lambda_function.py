@@ -2116,9 +2116,15 @@ def lambda_handler(event, context):
     #print('event: ', event)
     #print('context: ', context)
     
+    
+    
     #sessionId = str(uuid4())
     sessionId = "a1234"
     print('sessionId: ', sessionId)
+    
+    # subscribe sessionId
+    subscribe_redis_using_thread()
+    
     
     handler = Mangum(app)    
     
@@ -2127,8 +2133,6 @@ def lambda_handler(event, context):
     )  
     print('response', response)
     
-    # subscribe sessionId
-    # subscribe_redis_using_thread()
         
     # test()
     
