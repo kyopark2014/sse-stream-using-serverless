@@ -2069,10 +2069,45 @@ async def generator(req: Request):
 app = FastAPI()
 router = APIRouter()
 
+#@router.get("/chat")
+#async def sslSendMessage(req: Request) -> EventSourceResponse:    
+#    #return {"message": "Hello World..."}    
+#    return EventSourceResponse(generator(req))
+
+STREAM_DELAY = 3  # second
+RETRY_TIMEOUT = 15000  # milisecond
+
 @router.get("/chat")
-async def sslSendMessage(req: Request) -> EventSourceResponse:    
-    #return {"message": "Hello World..."}    
-    return EventSourceResponse(generator(req))
+async def message_stream(request: Request):
+    await print_request(request)
+    
+    event = request['aws.event']
+    print('event: ', event)
+    
+    body = event['body']
+    print('body: ', body)
+    
+    def new_messages():
+        # Add logic here to check for new messages
+        yield 'Hello World'
+    async def event_generator():
+        while True:
+            # If client closes connection, stop sending events
+            if await request.is_disconnected():
+                break
+
+            # Checks for new messages and return them to client if any
+            if new_messages():
+                yield {
+                        "event": "new_message",
+                        "id": "message_id",
+                        "retry": RETRY_TIMEOUT,
+                        "data": "message_content"
+                }
+
+            await asyncio.sleep(STREAM_DELAY)
+
+    return EventSourceResponse(event_generator())
 
 app.include_router(router)
 
