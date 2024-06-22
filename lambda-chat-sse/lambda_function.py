@@ -123,11 +123,11 @@ def publish_message(sessionId, userId):
         print('error message: ', err_msg)                    
         raise Exception ("Not able to request to redis")
 
-def subscribe_redis_using_thread():
+async def subscribe_redis_using_thread():
     channel = sessionId
     
     parent_conn, child_conn = Pipe()
-    process = Process(target=subscribe_redis, args=(child_conn, channel))
+    process = await Process(target=subscribe_redis, args=(child_conn, channel))
     process.start()
     
     question = parent_conn.recv()
