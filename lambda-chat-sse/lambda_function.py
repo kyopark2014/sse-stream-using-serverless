@@ -103,16 +103,14 @@ def initiate_redis():
     
 redis_client = initiate_redis()
 
-"""
-def publishTest():
-    sessionId = 'a1234'
+def publish_sessionId(sessionId, userId):
     msg = {
         'type': 'init',
         'session-id': sessionId,
-        'user-id': 'demo'
+        'user-id': userId
     }
     
-    channel = f"{sessionId}"           
+    channel = f"{sessionId}"
     print('channel: ', channel)
     print('msg: ', msg)
     
@@ -125,8 +123,6 @@ def publishTest():
         print('error message: ', err_msg)                    
         raise Exception ("Not able to request to redis")
 
-publishTest()
-"""        
 
 def subscribe_userId_using_thread(channel):
     parent_conn, child_conn = Pipe()
@@ -2088,7 +2084,9 @@ async def generator(req: Request):
         }
     }    
     yield json.dumps(output)    
-    await asyncio.sleep(5)
+    await asyncio.sleep(3)
+    
+    # publish_sessionId(sessionId, userId)
         
     #while True:
     #    is_disconnected = await req.is_disconnected()
@@ -2096,9 +2094,9 @@ async def generator(req: Request):
     #        break
         
     
-    if channel_id:
-        print('channel_id: ', channel_id)
-        subscribe_userId_using_thread(channel_id)
+    #if channel_id:
+    #    print('channel_id: ', channel_id)
+    #    subscribe_userId_using_thread(channel_id)
     
                 
 @router.get("/chat")
