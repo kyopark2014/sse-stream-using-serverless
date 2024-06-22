@@ -2047,6 +2047,7 @@ async def generator(req: Request):
     yield json.dumps(output)
     await asyncio.sleep(3)
             
+    """
     cnt = 0
     while True:
         is_disconnected = await req.is_disconnected()
@@ -2064,7 +2065,7 @@ async def generator(req: Request):
         await asyncio.sleep(3)
         
         cnt = cnt + 1
-                                
+    """                            
 app = FastAPI()
 router = APIRouter()
 
