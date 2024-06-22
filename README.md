@@ -9,6 +9,7 @@ RESTful API Gateway에서 설정할 수 있는 최대 timeout이 30초이므로,
 
 ![image](https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/ebf249f9-99f8-4fc3-9ae3-71245d05d040)
 
+SSE의 경우에 세션이 계속 유지 되어야 하므로 서버리스보다는 ECS/EKS, EC2의 구조에 적절할것으로 보여집니다. 
 
 ## Architecture 
 
@@ -70,8 +71,10 @@ ASGI(Asynchronous Server Gateway Interface)
 
 
 ## 결론
-- SSE로 구현시 단순하고 쉽게 구현가능하지만, Scale 고려시 pubsub을 위한 Redis cluster를 구성하여야 합니다.
+
+- SSE로 구현시 단순하고 쉽게 구현가능하지만, Scale 고려시 pubsub을 위한 Redis를 구성하여야 합니다.
 - WebSocket는 세션관리에 대한 부담등의 이슈가 있고, WebSocket용 API Gateway를 써야하지만 Redis가 불필요합니다.
+- SSE의 경우에 API Gateway은 미지원하므로, ALB/NLB를 적용해야 할 것으로 보여집니다.
 
 
 ## Reference 
