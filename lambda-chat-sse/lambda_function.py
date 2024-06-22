@@ -139,7 +139,14 @@ def subscribe_redis(channel):
         if message['data'] != 1:            
             msg = message['data'].encode('utf-8').decode('unicode_escape')
             # msg = msg[1:len(msg)-1]
-            print('msg: ', msg)                        
+            print('msg: ', msg)
+            
+            if msg['type'] == 'init':
+                print('userId: ', msg['user-id'])
+                
+                pubsub = redis_client.pubsub()
+                pubsub.subscribe(msg['user-id'])
+                print('start subscribing the channel: ', msg['user-id'])
         
             #deliveryVoiceMessage(msg)
 
@@ -209,11 +216,6 @@ except Exception as e:
 
 if tavily_api_key:
     os.environ["TAVILY_API_KEY"] = tavily_api_key
-
-# websocket
-connection_url = os.environ.get('connection_url')
-client = boto3.client('apigatewaymanagementapi', endpoint_url=connection_url)
-print('connection_url: ', connection_url)
 
 HUMAN_PROMPT = "\n\nHuman:"
 AI_PROMPT = "\n\nAssistant:"
