@@ -46,17 +46,14 @@ SSE의 경우에 세션이 계속 유지 되어야 하므로 서버리스보다�
 
 user-id를 key로하는 pubsub을 통해 SSE 세션을 가지고 있는 lambda(chat)에 질문을 전달합니다. 상세한 call flow는 아래를 참조합니다.
 
-<img src="https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/ca12a24a-a8c7-4c3c-8a2e-1754d78b666f" width="600">
+<img src="https://github.com/kyopark2014/sse-stream-using-serverless/assets/52392004/e9c67e00-d04c-4eb4-8e93-55f2794de89e" width="600">
 
 
 1) Client에서 SSE 세션을 연결하기 위해 '/chat'으로 connect를 요청하면, lambda(chat)은 session-id를 생성하여 SSE로 client에 전달합니다. 또한, lambda(chat)은 session-id를 key로 Redis를 subscribe 합니다.
-2) Client가 '/redis'로 session-id와 user-id를 labmda(redis)에 전달하면, lamba(redis)는 Redis에 publish 합니다.
-3) Redis는 session-id로 subscribe하고 있는 lamba(chat)에 user-id를 전달합니다.
-4) lambda(chat)이 session-id의 user-id를 알게 되었으므로, Redis에 user-id로 subscribe을 수행합니다.
-5) 사용자가 질문을 하면, Client는 '/redis'를 이용하여 질문(question)을 전달합니다. lambda(redis)가 질문을 받아서 Redis에 publish 합니다.
-6) Redis를 통해 질문이 lambda(chat)에 전달됩니다.
-7) lambda(chat)은 LLM에 질문을 전달합여 답변(answer)를 얻습니다.
-8) LLM의 answer는 SSE를 이용해 stream 방식으로 Client에 전달합니다.
+2) 사용자가 질문을 하면, Client는 '/redis'를 이용하여 질문(question)을 전달합니다. lambda(redis)가 질문을 받아서 Redis에 publish 합니다.
+3) Redis를 통해 질문이 lambda(chat)에 전달됩니다.
+4) lambda(chat)은 LLM에 질문을 전달합여 답변(answer)를 얻습니다.
+5) LLM의 answer는 SSE를 이용해 stream 방식으로 Client에 전달합니다.
 
 
 
