@@ -2099,14 +2099,14 @@ async def message_stream(request: Request):
             print('new_messages: ', new_messages())
             # Checks for new messages and return them to client if any
             if new_messages():
-                yield json.dumps({
-                        "event": "new_message",
-                        "id": "message_id",
-                        "retry": RETRY_TIMEOUT,
-                        "data": "message_content"
+                return json.dumps({
+                    "event": "new_message",
+                    "id": "message_id",
+                    "retry": RETRY_TIMEOUT,
+                    "data": "message_content"
                 })
 
-            await asyncio.sleep(STREAM_DELAY)
+            #await asyncio.sleep(STREAM_DELAY)
 
     return EventSourceResponse(event_generator())
 
