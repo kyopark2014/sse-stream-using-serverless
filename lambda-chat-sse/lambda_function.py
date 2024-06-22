@@ -2042,7 +2042,7 @@ async def generator(req: Request):
     
     # sent session info to the client     
     output = {
-        "type": "init",
+        "type": "message",
         "session-id": sessionId,
         "data": {
             "msg": new_messages()
