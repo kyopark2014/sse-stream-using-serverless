@@ -160,13 +160,16 @@ def subscribe_sessionId(channel):
                 
         if message['data'] != 1:            
             msg = message['data'].encode('utf-8').decode('unicode_escape')
+            
             # msg = msg[1:len(msg)-1]
             print('msg: ', msg)
             
-            if msg['type'] == 'init':
-                userId = msg['user-id']                
+            event = json.parse(msg)
+            print('event: ', event)
+            
+            if event['type'] == 'init':
+                userId = event['user-id']                
                 print('userId: ', userId)
-
                 break
     
     pubsub.close()
