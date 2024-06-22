@@ -2063,10 +2063,10 @@ async def event_generator(req: Request):
         print('output: ', output)
         
         if output != previous:
-            yield json.dumps(output)
-            await asyncio.sleep(3)
-        
+            yield json.dumps(output)        
             previous = output
+            
+        await asyncio.sleep(3)
             
 app = FastAPI()
 router = APIRouter()
