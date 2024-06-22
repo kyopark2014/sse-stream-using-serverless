@@ -13,7 +13,7 @@ SSE의 경우에 세션이 계속 유지 되어야 하므로 서버리스보다�
 
 ## Architecture 
 
-전체적인 Architecture는 아래와 같습니다. (API Gateway의 SSE 미지원으로 인해 구현을 중지합니다.)
+전체적인 Architecture는 아래와 같습니다. (API Gateway으로 SSE를 지원할 수 없음이 확인되어 현 상태에서 구현을 중지합니다.)
 
 <img src="https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/54a73196-dc68-4e24-8652-c0fdd6844f5b" width="800">
 
