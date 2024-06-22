@@ -2079,7 +2079,7 @@ RETRY_TIMEOUT = 15000  # milisecond
 
 @router.get("/chat")
 async def message_stream(request: Request):
-    await print_request(request)
+    #await print_request(request)
     
     event = request['aws.event']
     print('event: ', event)
@@ -2089,7 +2089,7 @@ async def message_stream(request: Request):
     
     def new_messages():
         # Add logic here to check for new messages
-        yield 'Hello World'
+        return 'Hello World'
     async def event_generator():
         while True:
             # If client closes connection, stop sending events
