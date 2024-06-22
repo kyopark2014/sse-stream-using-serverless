@@ -2039,17 +2039,6 @@ async def event_generator(req: Request):
     print('body: ', body)
     
     # sent session info to the client     
-    output = {
-        "type": "message",
-        "session-id": sessionId,
-        "data": {
-            "msg": new_messages()
-        }
-    }    
-    print('output: ', output)
-    yield json.dumps(output)
-    await asyncio.sleep(1)
-    
     cnt = 0
     #while True:
     for i in range(3):
