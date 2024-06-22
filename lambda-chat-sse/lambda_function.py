@@ -2109,7 +2109,10 @@ def test():
 
         # sendErrorMessage(requestId, err_msg)    
         raise Exception ("Not able to send a message")
-    
+
+# subscribe sessionId
+    subscribe_redis_using_thread()
+        
 def lambda_handler(event, context):
     global sessionId
     
@@ -2122,8 +2125,7 @@ def lambda_handler(event, context):
     sessionId = "a1234"
     print('sessionId: ', sessionId)
     
-    # subscribe sessionId
-    subscribe_redis_using_thread()
+    
     
     
     handler = Mangum(app)    
@@ -2132,6 +2134,8 @@ def lambda_handler(event, context):
         event, context
     )  
     print('response', response)
+    
+    
     
         
     # test()
