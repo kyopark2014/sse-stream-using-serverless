@@ -112,3 +112,7 @@ ASGI(Asynchronous Server Gateway Interface)
 [Real-Time Communication with SSE in FastAPI: Enhancing Task Processing Efficiency](https://princyprakash.medium.com/real-time-communication-with-sse-in-fastapi-enhancing-task-processing-efficiency-bc8ba9b3c29f)
 
 [Sever Sent Event(SSE) 사용하기](https://blog.naver.com/pjt3591oo/223274970013)
+
+
+[Stream Responses from OpenAI API with Python: A Step-by-Step Guide](https://www.codingthesmartway.com/stream-responses-from-openai-api-with-python/)
+
