@@ -153,7 +153,9 @@ def subscribe_sessionId(channel):
         print('message: ', message)
                 
         if message['data'] != 1:            
-            msg = message['data'].encode('utf-8').decode('unicode_escape')
+            data = message['data'].encode('utf-8').decode('unicode_escape')
+            
+            msg = json.loads(data)
             
             # msg = msg[1:len(msg)-1]
             print('msg: ', msg)
