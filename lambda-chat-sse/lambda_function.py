@@ -2028,9 +2028,14 @@ async def print_request(request):
     print(f'request header       : {dict(request.headers.items())}' )
     print(f'request query params : {dict(request.query_params.items())}')  
     print(f'request path params  : {dict(request)}')
-         
+
+def new_messages():
+    # Add logic here to check for new messages
+    yield 'Hello World'
+                 
 async def event_generator(req: Request):
     # await print_request(req)
+    print('sessionId: ', sessionId)
     
     event = req['aws.event']
     print('event: ', event)
@@ -2041,8 +2046,7 @@ async def event_generator(req: Request):
     # sent session info to the client     
     cnt = 0
     #while True:
-    while True:
-    #for i in range(3):
+    for i in range(3):
         if await req.is_disconnected():
             print('Client disconnected')
             break
@@ -2105,7 +2109,8 @@ def lambda_handler(event, context):
     #print('event: ', event)
     #print('context: ', context)
     
-    sessionId = str(uuid4())
+    #sessionId = str(uuid4())
+    sessionId = "a1234"
     print('sessionId: ', sessionId)
     
     handler = Mangum(app)    
