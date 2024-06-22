@@ -2096,14 +2096,15 @@ async def message_stream(request: Request):
             if await request.is_disconnected():
                 break
 
+            print('new_messages: ', new_messages())
             # Checks for new messages and return them to client if any
             if new_messages():
-                yield {
+                yield json.dumps({
                         "event": "new_message",
                         "id": "message_id",
                         "retry": RETRY_TIMEOUT,
                         "data": "message_content"
-                }
+                })
 
             await asyncio.sleep(STREAM_DELAY)
 
