@@ -2038,21 +2038,21 @@ async def generator(req: Request):
     body = event['body']
     print('body: ', body)
             
-    while True:
-        is_disconnected = await req.is_disconnected()
-        if is_disconnected:
-            break
+    #while True:
+    ##    is_disconnected = await req.is_disconnected()
+    #    if is_disconnected:
+    #        break
         
-        # sent session info to the client     
-        output = {
-            "type": "init",
-            "session-id": sessionId,
-            "data": {
-                "msg": ""
-            }
-        }    
-        yield json.dumps(output)
-        await asyncio.sleep(3)
+    # sent session info to the client     
+    output = {
+        "type": "init",
+        "session-id": sessionId,
+        "data": {
+            "msg": ""
+        }
+    }    
+    yield json.dumps(output)
+    await asyncio.sleep(3)
                             
 @router.get("/chat")
 async def sslSendMessage(req: Request) -> EventSourceResponse:    
