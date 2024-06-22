@@ -129,6 +129,7 @@ def publishTest():
 publishTest()
 """        
 
+"""
 STOPWORD = "STOP"
 async def reader(channel: redis.client.PubSub):
     while True:
@@ -138,8 +139,10 @@ async def reader(channel: redis.client.PubSub):
             if message["data"].decode() == STOPWORD:
                 print("(Reader) STOP")
                 break
+"""
             
 async def subscribe_redis(channel):    
+    """
     async with redis_client.pubsub() as pubsub:
         await pubsub.subscribe(channel)
         
@@ -148,8 +151,9 @@ async def subscribe_redis(channel):
         
         await future
     """
+    
     pubsub = redis_client.pubsub()
-    await pubsub.subscribe(channel)
+    pubsub.subscribe(channel)
     print('successfully subscribed for channel: ', channel)    
             
     for message in pubsub.listen():
@@ -161,7 +165,7 @@ async def subscribe_redis(channel):
             print('msg: ', msg)                        
         
             #deliveryVoiceMessage(msg)
-    """
+    
 #subscribe_redis('a1234')
             
 # google search api
