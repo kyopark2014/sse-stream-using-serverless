@@ -110,6 +110,7 @@ function connect(endpoint) {
         data = JSON.parse(event.data);
         console.log('data: ', data);
 
+        /* 
         console.log('type: ', data['type']);
 
         if(data['type'] == 'init') {
@@ -165,7 +166,7 @@ function connect(endpoint) {
                     }
                 }   
             }
-        }
+        } */
     };
 
     // connection event
