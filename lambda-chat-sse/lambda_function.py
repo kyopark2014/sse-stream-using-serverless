@@ -2072,7 +2072,11 @@ async def generator(req: Request):
     
     sessionId = str(uuid4())
     print('sessionId: ', sessionId)
-     
+    
+    # subscribe sessionId
+    subscribe_sessionId_using_thread(sessionId)
+    
+    # sent session info to the client     
     output = {
         "type": "init",
         "session-id": sessionId,
@@ -2081,11 +2085,8 @@ async def generator(req: Request):
         }
     }    
     yield json.dumps(output)    
-    await asyncio.sleep(3)
-    
-    # subscribe sessionId
-    # subscribe_sessionId_using_thread(sessionId)
-    
+    await asyncio.sleep(30)
+        
     # publish_sessionId(sessionId, userId)
         
     #while True:
