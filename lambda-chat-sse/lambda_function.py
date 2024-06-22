@@ -2058,7 +2058,7 @@ async def event_generator(req: Request):
         }    
         print('output: ', output)
         yield json.dumps(output)
-        await asyncio.sleep(3)
+        await asyncio.sleep(5)
             
 app = FastAPI()
 router = APIRouter()
