@@ -3,7 +3,9 @@
 
 ## 구현 이슈
 
-30초 Timeout: API Gateway일 수 있음.
+RESTful API Gateway에서 30초 timeout으로 stream 제공이 안되는것으로 보여집니다. [관련링크](https://stackoverflow.com/questions/76139485/how-to-support-sse-with-api-gateway-in-aws-while-maintaining-an-external-authent)
+
+관련 에러 메시지는 아래와 같습니다.
 
 ![image](https://github.com/kyopark2014/streaming-chatbot-using-sse/assets/52392004/ebf249f9-99f8-4fc3-9ae3-71245d05d040)
 
