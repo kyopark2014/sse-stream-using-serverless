@@ -164,17 +164,17 @@ def subscribe_sessionId(channel):
             # msg = msg[1:len(msg)-1]
             print('msg: ', msg)
             
-            event = json.parse(msg)
-            print('event: ', event)
-            
-            if event['type'] == 'init':
-                userId = event['user-id']                
+            if msg['type'] == 'init':
+                userId = msg['user-id']                
                 print('userId: ', userId)
-                break
-    
-    pubsub.close()
+                
+                pubsub.close()
 
-    return userId
+                return userId
+    
+    
+
+    
 
 #subscribe_redis('a1234')
             
