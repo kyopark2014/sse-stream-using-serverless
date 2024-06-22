@@ -96,6 +96,7 @@ function sendMessage(message) {
 
 let sessionId = ""
 function connect(endpoint) {
+    console.log('start event source')
     const eventSource = new EventSource("/chat");
 
     // message 
