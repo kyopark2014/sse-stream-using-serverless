@@ -129,9 +129,27 @@ def publishTest():
 publishTest()
 """        
 
+STOPWORD = "STOP"
+async def reader(channel: redis.client.PubSub):
+    while True:
+        message = await channel.get_message(ignore_subscribe_messages=True)
+        if message is not None:
+            print(f"(Reader) Message Received: {message}")
+            if message["data"].decode() == STOPWORD:
+                print("(Reader) STOP")
+                break
+            
 async def subscribe_redis(channel):    
+    async with redis_client.pubsub() as pubsub:
+        await pubsub.subscribe(channel)
+        
+        future = asyncio.create_task(reader(pubsub))
+        print('future: ', future)
+        
+        await future
+    """
     pubsub = redis_client.pubsub()
-    pubsub.subscribe(channel)
+    await pubsub.subscribe(channel)
     print('successfully subscribed for channel: ', channel)    
             
     for message in pubsub.listen():
@@ -143,7 +161,7 @@ async def subscribe_redis(channel):
             print('msg: ', msg)                        
         
             #deliveryVoiceMessage(msg)
-
+    """
 #subscribe_redis('a1234')
             
 # google search api
