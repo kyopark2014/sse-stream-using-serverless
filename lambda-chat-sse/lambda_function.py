@@ -155,22 +155,14 @@ def subscribe_sessionId(channel):
         if message['data'] != 1:            
             data = message['data'].encode('utf-8').decode('unicode_escape')
             
-            msg = json.loads(data)
-            
-            # msg = msg[1:len(msg)-1]
-            print('msg: ', msg)
-            msgType = msg['type']
-            print('msgType: ', msgType)
-            userId = msg['user-id']
-            print('userId: ', userId)
-            
+            msg = json.loads(data)                        
             if msg['type'] == 'init':
                 userId = msg['user-id']                
-                print('userId: ', userId)
-                
-                pubsub.close()
-
-                return userId
+                print('userId: ', userId)                
+                break                
+            
+    pubsub.close()
+    return userId
 
 #subscribe_redis('a1234')
             
