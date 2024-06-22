@@ -3,7 +3,7 @@
 
 ## 구현 이슈
 
-RESTful API Gateway에서 30초 timeout으로 stream 제공이 안되는것으로 보여집니다. [관련링크](https://stackoverflow.com/questions/76139485/how-to-support-sse-with-api-gateway-in-aws-while-maintaining-an-external-authent)
+RESTful API Gateway에서 설정할 수 있는 최대 timeout이 30초이므로, SSE를 이용해 stream으로 서비스가 어려운것으로 보여집니다. [관련링크](https://stackoverflow.com/questions/76139485/how-to-support-sse-with-api-gateway-in-aws-while-maintaining-an-external-authent)
 
 관련 에러 메시지는 아래와 같습니다.
 
