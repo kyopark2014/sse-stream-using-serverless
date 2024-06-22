@@ -128,7 +128,16 @@ def publishTest():
 publishTest()
 """        
 
-def subscribe_redis(channel):    
+def subscribe_userId_using_thread(channel):
+    parent_conn, child_conn = Pipe()
+    process = Process(target=subscribe_userId, args=(child_conn, channel))
+    process.start()
+    
+    msg = parent_conn.recv()
+    print('msg: ', msg)
+    process.join()
+    
+def subscribe_userId(conn, channel):    
     pubsub = redis_client.pubsub()
     pubsub.subscribe(channel)
     print('successfully subscribed for channel: ', channel)    
@@ -139,19 +148,23 @@ def subscribe_redis(channel):
         if message['data'] != 1:            
             msg = message['data'].encode('utf-8').decode('unicode_escape')
             # msg = msg[1:len(msg)-1]
-            print('msg: ', msg)
-                                        
+            print('msg: ', msg)                                        
             #deliveryVoiceMessage(msg)
+            
+    conn.send(msg)
+    conn.close()
 
-def subscribe_using_thread(channel):
+def subscribe_sessionId_using_thread(channel):
+    global channel_id
+    
     parent_conn, child_conn = Pipe()
     process = Process(target=subscribe_sessionId, args=(child_conn, channel))
     process.start()
     
-    userId = parent_conn.recv()
+    channel_id = parent_conn.recv()
     process.join()
     
-    print('userId: ', userId)
+    print('channel_id: ', channel_id)
     
 def subscribe_sessionId(conn, channel):    
     pubsub = redis_client.pubsub()
@@ -168,11 +181,10 @@ def subscribe_sessionId(conn, channel):
             msg = json.loads(data)                        
             if msg['type'] == 'init':
                 userId = msg['user-id']                
-                print('userId: ', userId)                
+                # print('userId: ', userId)                
                 break                
             
     pubsub.close()
-    #return userId
 
     conn.send(userId)
     conn.close()
@@ -2051,7 +2063,8 @@ async def print_request(request):
     print(f'request header       : {dict(request.headers.items())}' )
     print(f'request query params : {dict(request.query_params.items())}')  
     print(f'request path params  : {dict(request)}')
-                
+         
+channel_id = ""       
 async def generator(req: Request):
     await print_request(req)
     
@@ -2065,17 +2078,8 @@ async def generator(req: Request):
     print('sessionId: ', sessionId)
     
     # subscribe sessionId
-    subscribe_using_thread(sessionId)
-    #userId = subscribe_sessionId(sessionId)
+    subscribe_sessionId_using_thread(sessionId)
     
-    #print('userId: ', userId)
-    #subscribe_redis(userId)
-    
-    #while True:
-    #    is_disconnected = await req.is_disconnected()
-    #    if is_disconnected:
-    #        break
-        
     output = {
         "type": "init",
         "session-id": sessionId,
@@ -2083,9 +2087,19 @@ async def generator(req: Request):
             "msg": ""
         }
     }    
-    yield json.dumps(output)
+    yield json.dumps(output)    
+    await asyncio.sleep(5)
+        
+    #while True:
+    #    is_disconnected = await req.is_disconnected()
+    #    if is_disconnected:
+    #        break
+        
     
-    await asyncio.sleep(3)
+    if channel_id:
+        print('channel_id: ', channel_id)
+        subscribe_userId_using_thread(channel_id)
+    
                 
 @router.get("/chat")
 async def sslSendMessage(req: Request) -> EventSourceResponse:    
