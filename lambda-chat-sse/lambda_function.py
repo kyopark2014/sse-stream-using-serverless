@@ -86,15 +86,17 @@ redisAddress = os.environ.get('redisAddress')
 print('redisAddress: ',redisAddress)
 redisPort = os.environ.get('redisPort')
 print('redisPort: ',redisPort)
+
+
     
-def initiate_redis():
+async def initiate_redis():
     try: 
         #client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)    
-        #client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)   
-        client = redis.from_url(f"redis://{redisAddress}") 
-        print('Redis was connected')
+        client = redis.Redis(host=redisAddress, port=redisPort, db=0, charset="utf-8", decode_responses=True)   
+        #client = await redis.from_url(f"redis://{redisAddress}") 
+        # print('Redis was connected')
         
-        print(f"Ping successful: {client.ping()}")
+        print(f"Ping successful: {await client.ping()}")
         # await client.aclose()
         
     except Exception:
@@ -234,11 +236,6 @@ except Exception as e:
 
 if tavily_api_key:
     os.environ["TAVILY_API_KEY"] = tavily_api_key
-
-# websocket
-connection_url = os.environ.get('connection_url')
-client = boto3.client('apigatewaymanagementapi', endpoint_url=connection_url)
-print('connection_url: ', connection_url)
 
 HUMAN_PROMPT = "\n\nHuman:"
 AI_PROMPT = "\n\nAssistant:"
