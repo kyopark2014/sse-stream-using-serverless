@@ -1,4 +1,4 @@
-# SSE를 이용한 Streaming Chatbot
+# SSE를 이용한 Streaming Chatbot (Serverless로 구현하다가 실패)
 
 
 ## 구현 이슈
